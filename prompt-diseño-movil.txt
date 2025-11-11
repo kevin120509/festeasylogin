@@ -1,0 +1,196 @@
+⚠️ Importante:
+
+La lógica y funcionalidad ya están implementadas.
+
+Este prompt se enfoca solo en la construcción visual, maquetación, y estructura modular del frontend.
+
+El sistema ya valida el correo al iniciar sesión y redirige al Home correspondiente (Cliente o Proveedor).
+
+Asegúrate de que no existan errores visuales ni overflow en ninguna vista.
+
+🎯 Objetivo del diseño
+
+Crear una interfaz moderna, limpia y visualmente coherente con la marca FestEasy, que represente profesionalismo, elegancia y facilidad de uso para el usuario final (organizadores y proveedores de eventos).
+Todas las pantallas deben ser 100 % responsivas, adaptables a cualquier tamaño de pantalla móvil.
+
+🧩 Estructura esperada de la aplicación (solo vistas)
+1. 🏠 Pantalla de Bienvenida (Landing Page)
+
+Fondo en tono claro o degradado con el logo de FestEasy centrado.
+
+Texto lema: “Tu fiesta, fácil y a un clic.”
+
+Botones principales:
+
+Iniciar Sesión → navega al formulario de login.
+
+Registrarse → abre la pantalla de registro.
+
+Elemento decorativo tipo animación o imagen alusiva a eventos.
+
+Evitar overflow y mantener padding proporcional (usar SafeArea + SingleChildScrollView si es necesario).
+
+2. 🔐 Pantalla de Login
+
+Fondo blanco o ligeramente degradado (#F8F8F8).
+
+Campos:
+
+Correo electrónico (valida formato).
+
+Contraseña (oculta texto).
+
+Botón primario: Iniciar Sesión (#6750A4).
+
+Texto secundario: “¿No tienes cuenta? Regístrate”.
+
+Diseño centrado, con separación adecuada entre elementos (SizedBox(height: 16)).
+
+Mostrar un CircularProgressIndicator opcional al cargar.
+
+El sistema debe identificar si el correo pertenece a un cliente o proveedor, y navegar según el tipo de usuario.
+
+3. ✍️ Pantalla de Registro
+
+Formulario con:
+
+Nombre completo.
+
+Correo electrónico.
+
+Contraseña y Confirmar Contraseña.
+
+Dropdown o selector para tipo de cuenta: Cliente / Proveedor.
+
+Botón: Crear cuenta (#6750A4).
+
+Mostrar un SnackBar o diálogo de confirmación visual (sin lógica backend).
+
+Transición animada suave (Fade o Slide).
+
+4. 🎉 Home del Cliente (Organizador)
+
+Barra superior:
+
+Texto: “Hola, [nombre] 👋”
+
+Ícono de perfil (avatar circular).
+
+Campo de búsqueda: “Buscar servicios para mi evento”.
+
+Sección de descripción con TextField grande: “Describe tu evento”.
+
+Botón destacado: Generar Sugerencias (IA).
+
+Sección inferior:
+
+“Proveedores Recomendados” → lista horizontal de Cards con imagen, nombre y botón Ver más.
+
+“Cotizaciones Recientes” → lista horizontal con tarjetas de estado y monto.
+
+Fondo color claro, espaciado entre secciones y scroll vertical fluido (ListView o SingleChildScrollView).
+
+5. 🧰 Home del Proveedor
+
+Título superior: “Solicitudes Recientes”.
+
+Cada solicitud debe mostrar:
+
+Descripción del evento.
+
+Fecha y ubicación.
+
+Botón Responder (color secundario #6750A4).
+
+Filtros por categoría (DropdownButton o ChipSelector).
+
+Espaciado equilibrado y diseño tipo lista vertical (ListView.builder).
+
+6. 💬 Pantalla de Cotización
+
+Campos:
+
+Nombre del servicio.
+
+Precio sugerido (con validación visual).
+
+Fecha del evento.
+
+Mensaje personalizado al cliente.
+
+Botón: Enviar Cotización.
+
+Layout centrado, sin overflow, con Padding simétrico.
+
+7. 📅 Pantalla de Detalle / Confirmación de Evento
+
+Tarjeta con resumen:
+
+Nombre del evento.
+
+Proveedor asignado.
+
+Fecha, estado y monto.
+
+Botones:
+
+Cancelar → alerta visual.
+
+Chat → abre vista de mensajes.
+
+Ver progreso → muestra estado del servicio.
+
+Diseño tipo card layout (Card + ListTile) con fondo claro y tipografía Poppins.
+
+🖌️ Guía de estilo visual
+
+Color primario: #6750A4
+
+Color secundario: #D9C7FF
+
+Tipografía: Poppins o Roboto, con fontWeight.w600 para títulos.
+
+Estilo Material Design 3.
+
+Bordes redondeados (BorderRadius.circular(12) o 16).
+
+Uso coherente de sombras y espaciado (EdgeInsets.all(16)).
+
+Iconografía basada en Icons de Material o íconos personalizados de eventos.
+
+🧱 Estructura modular (solo UI)
+lib/
+ ├── core/
+ │   ├── theme/
+ │   │   └── app_theme.dart        // configuración de colores y tipografía
+ │   └── widgets/                  // botones, tarjetas, inputs reutilizables
+ ├── presentation/
+ │   ├── screens/
+ │   │   ├── welcome/              // Pantalla de bienvenida
+ │   │   ├── login/                // Login
+ │   │   ├── register/             // Registro
+ │   │   ├── home_cliente/         // Home Cliente
+ │   │   ├── home_proveedor/       // Home Proveedor
+ │   │   ├── cotizacion/           // Cotización
+ │   │   └── detalle_evento/       // Confirmación
+ │   └── widgets/                  // UI Components (cards, inputs, etc.)
+ └── main.dart                     // Rutas y configuración inicial
+
+⚙️ Condiciones generales
+
+Las vistas deben respetar los márgenes y el flujo original del prototipo en Stitch.
+
+Evitar cualquier overflow visual o desbordamiento horizontal.
+
+Todas las pantallas deben ser scrollables donde sea necesario.
+
+Debe mantenerse uniformidad de estilo entre cliente y proveedor.
+
+No implementar lógica (backend, autenticación o IA); solo la capa visual.
+
+Los assets (logo, íconos, imágenes decorativas) deben ir en /assets/.
+
+🧩 Resultado esperado
+
+Un proyecto Flutter completamente estructurado visualmente según el diseño de FestEasy, con todas las pantallas conectadas y navegables mediante rutas limpias.
+Sin errores visuales, sin overflow, y con una experiencia de usuario fluida y coherente con el estilo mostrado en el tablero de Stitch.
