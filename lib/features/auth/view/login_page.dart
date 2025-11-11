@@ -1,5 +1,3 @@
-import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
-import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
 
@@ -26,21 +24,7 @@ class _LoginPageState extends State<LoginPage> {
       _passwordController.text,
     );
 
-    if (user != null) {
-      final profileData = await _authService.getProfileData();
-      if (profileData != null) {
-        final rol = profileData['rol'];
-        if (rol == 'proveedor') {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const ProviderDashboard()),
-          );
-        } else if (rol == 'usuario') {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const ClientDashboard()),
-          );
-        }
-      }
-    } else {
+    if (user == null) {
       // Handle login error
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to sign in')),
@@ -50,6 +34,22 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _isLoading = false;
     });
+  }
+
+  Future<void> _sendMagicLink() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    await _authService.sendMagicLink(_emailController.text);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Magic link sent! Check your email.')),
+    );
   }
 
   @override
@@ -72,9 +72,18 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 20),
             _isLoading
                 ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _login,
-                    child: const Text('Login'),
+                : Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: _login,
+                        child: const Text('Login'),
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: _sendMagicLink,
+                        child: const Text('Send Magic Link'),
+                      ),
+                    ],
                   ),
           ],
         ),

@@ -19,6 +19,7 @@ dependencies:
 
 dev_dependencies:
   bloc_test: ^10.0.0
+  flutter_launcher_icons: ^0.14.4
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.4
@@ -27,3 +28,8 @@ dev_dependencies:
 flutter:
   generate: true
   uses-material-design: true
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/logo.jpg"

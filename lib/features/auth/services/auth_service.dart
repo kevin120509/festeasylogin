@@ -12,6 +12,20 @@ class AuthService {
     return response.user;
   }
 
+  Future<void> sendMagicLink(String email) async {
+    try {
+      await _supabase.auth.signInWithOtp(
+        email: email,
+        emailRedirectTo: 'festeasyapp://login-callback',
+      );
+      print('Magic link sent successfully to $email');
+    } on AuthException catch (e) {
+      print('Error sending magic link: ${e.message}');
+    } catch (e) {
+      print('An unexpected error occurred: $e');
+    }
+  }
+
   Future<User?> signUp(String email, String password) async {
     final response = await _supabase.auth.signUp(
       email: email,
@@ -32,7 +46,7 @@ class AuthService {
         .eq('id', user.id)
         .single();
 
-    if (profileResponse == null) {
+    if (profileResponse == null || profileResponse.isEmpty) {
       return null;
     }
 
@@ -60,5 +74,23 @@ class AuthService {
     }
 
     return profileData;
+  }
+
+  Future<void> createProfile(String role) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) {
+      return;
+    }
+
+    await _supabase.from('profiles').insert({
+      'id': user.id,
+      'rol': role,
+    });
+
+    if (role == 'proveedor') {
+      await _supabase.from('proveedores').insert({'user_id': user.id});
+    } else if (role == 'usuario') {
+      await _supabase.from('clientes').insert({'user_id': user.id});
+    }
   }
 }
