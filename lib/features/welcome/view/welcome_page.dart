@@ -24,9 +24,9 @@ class WelcomePage extends StatelessWidget {
               ),
               const SizedBox(height: 48),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   // Navigate to client login/register
-                  Navigator.of(context).push(
+                  await Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const ClientLoginPage(),
                     ),
@@ -46,9 +46,9 @@ class WelcomePage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               OutlinedButton(
-                onPressed: () {
+                onPressed: () async {
                   // Navigate to provider login/register
-                  Navigator.of(context).push(
+                  await Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const ProviderLoginPage(),
                     ),

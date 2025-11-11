@@ -1,196 +1,157 @@
-⚠️ Importante:
+Perfecto ✅ — este error que aparece en tu pantalla es totalmente del lado de Supabase
+y está relacionado con las políticas de seguridad (RLS – Row Level Security).
 
-La lógica y funcionalidad ya están implementadas.
+Te explico exactamente por qué ocurre, cómo corregirlo y te dejo el super prompt $P para que Gemini CLI actualice la lógica de registro y el diseño correctamente.
 
-Este prompt se enfoca solo en la construcción visual, maquetación, y estructura modular del frontend.
+⚠️ ERROR EXPLICADO
+PostgrestException(
+  message: new row violates row-level security policy for table "profiles",
+  code: 42501,
+  details: Unauthorized
+)
 
-El sistema ya valida el correo al iniciar sesión y redirige al Home correspondiente (Cliente o Proveedor).
 
-Asegúrate de que no existan errores visuales ni overflow en ninguna vista.
+📌 Significado:
+Tu aplicación intenta insertar un nuevo registro en la tabla profiles, pero Supabase tiene activada la seguridad a nivel de fila (RLS) y no hay ninguna política que permita insertar datos desde el cliente (usuario autenticado o anónimo).
 
-🎯 Objetivo del diseño
+✅ SOLUCIÓN EN SUPABASE (Panel)
+1️⃣ Entra a tu proyecto en Supabase
 
-Crear una interfaz moderna, limpia y visualmente coherente con la marca FestEasy, que represente profesionalismo, elegancia y facilidad de uso para el usuario final (organizadores y proveedores de eventos).
-Todas las pantallas deben ser 100 % responsivas, adaptables a cualquier tamaño de pantalla móvil.
+Ve al menú izquierdo → Table Editor → profiles
 
-🧩 Estructura esperada de la aplicación (solo vistas)
-1. 🏠 Pantalla de Bienvenida (Landing Page)
+2️⃣ En la parte superior haz clic en:
 
-Fondo en tono claro o degradado con el logo de FestEasy centrado.
+🛡️ “Policies” → “Enable RLS” (si no está activado)
 
-Texto lema: “Tu fiesta, fácil y a un clic.”
+3️⃣ Crea una nueva política:
 
-Botones principales:
+Haz clic en “New Policy” y configúrala así:
 
-Iniciar Sesión → navega al formulario de login.
+🔹 Policy name:
+Allow insert for authenticated users
 
-Registrarse → abre la pantalla de registro.
+🔹 Target roles:
+authenticated
 
-Elemento decorativo tipo animación o imagen alusiva a eventos.
+🔹 Using expression:
 
-Evitar overflow y mantener padding proporcional (usar SafeArea + SingleChildScrollView si es necesario).
+auth.uid() = id
 
-2. 🔐 Pantalla de Login
 
-Fondo blanco o ligeramente degradado (#F8F8F8).
+🔹 With check:
 
-Campos:
+auth.uid() = id
 
-Correo electrónico (valida formato).
 
-Contraseña (oculta texto).
+🧩 Esto significa: “solo el usuario autenticado puede insertar su propio perfil (con su mismo id)”.
 
-Botón primario: Iniciar Sesión (#6750A4).
+Guarda la política ✅
 
-Texto secundario: “¿No tienes cuenta? Regístrate”.
+⚙️ 4️⃣ En tu código de registro (Flutter)
 
-Diseño centrado, con separación adecuada entre elementos (SizedBox(height: 16)).
+Cuando creas el usuario, asegúrate de primero registrar el auth.user
+y luego insertar el perfil usando el user.id que devuelve Supabase Auth.
 
-Mostrar un CircularProgressIndicator opcional al cargar.
+Ejemplo completo corregido 👇
 
-El sistema debe identificar si el correo pertenece a un cliente o proveedor, y navegar según el tipo de usuario.
+final response = await supabase.auth.signUp(
+  email: email.trim(),
+  password: password.trim(),
+);
 
-3. ✍️ Pantalla de Registro
+final user = response.user;
 
-Formulario con:
+if (user != null) {
+  await supabase.from('profiles').insert({
+    'id': user.id,
+    'full_name': nameController.text.trim(),
+    'rol': selectedRole,
+    'created_at': DateTime.now().toIso8601String(),
+  });
+}
 
-Nombre completo.
 
-Correo electrónico.
+🔸 Importante: la columna id de profiles debe ser igual al UUID del usuario (auth.users.id).
 
-Contraseña y Confirmar Contraseña.
+🎨 5️⃣ Corrige el diseño del formulario de registro
 
-Dropdown o selector para tipo de cuenta: Cliente / Proveedor.
+Además del backend, tu diseño debe:
 
-Botón: Crear cuenta (#6750A4).
+Mantener el color primario #6750A4
 
-Mostrar un SnackBar o diálogo de confirmación visual (sin lógica backend).
+Evitar overflow (usa SingleChildScrollView)
 
-Transición animada suave (Fade o Slide).
+Tener márgenes y paddings coherentes
 
-4. 🎉 Home del Cliente (Organizador)
+Mostrar un SnackBar o Dialog cuando el registro se complete
 
-Barra superior:
+Ejemplo:
 
-Texto: “Hola, [nombre] 👋”
+ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(content: Text('Cuenta creada correctamente')),
+);
 
-Ícono de perfil (avatar circular).
+💥 SUPER PROMPT $P — para Gemini CLI (actualiza registro + diseño)
 
-Campo de búsqueda: “Buscar servicios para mi evento”.
+🧠 Objetivo:
+Corregir el flujo de registro del proyecto FestEasy para que el usuario se cree correctamente en Supabase Auth y su perfil se inserte en la tabla profiles, ajustando el diseño de la interfaz sin romper el resto de la aplicación.
 
-Sección de descripción con TextField grande: “Describe tu evento”.
+🧩 Requisitos técnicos
 
-Botón destacado: Generar Sugerencias (IA).
+Usar supabase.auth.signUp(email, password) para crear la cuenta.
 
-Sección inferior:
+Luego insertar el perfil en profiles con los campos:
 
-“Proveedores Recomendados” → lista horizontal de Cards con imagen, nombre y botón Ver más.
+{
+  "id": auth.user.id,
+  "full_name": nombre_completo,
+  "rol": rol_seleccionado,
+  "created_at": timestamp
+}
 
-“Cotizaciones Recientes” → lista horizontal con tarjetas de estado y monto.
 
-Fondo color claro, espaciado entre secciones y scroll vertical fluido (ListView o SingleChildScrollView).
+Validar que auth.uid() = id (RLS en Supabase).
 
-5. 🧰 Home del Proveedor
+Mostrar un mensaje visual (SnackBar/Dialog) de éxito o error.
 
-Título superior: “Solicitudes Recientes”.
+Si el usuario selecciona “proveedor”, redirigir a ProviderDashboard.
 
-Cada solicitud debe mostrar:
+Si selecciona “cliente”, redirigir a ClientDashboard.
 
-Descripción del evento.
+🎨 Diseño de la interfaz
 
-Fecha y ubicación.
+Fondo blanco o color claro.
 
-Botón Responder (color secundario #6750A4).
+Campos de texto con bordes redondeados.
 
-Filtros por categoría (DropdownButton o ChipSelector).
+Botón primario con color #6750A4 y texto blanco.
 
-Espaciado equilibrado y diseño tipo lista vertical (ListView.builder).
+Incluir SingleChildScrollView para evitar overflow.
 
-6. 💬 Pantalla de Cotización
+Espaciado entre campos: SizedBox(height: 20).
 
-Campos:
+Tipografía Poppins.
 
-Nombre del servicio.
+🧱 Validaciones
 
-Precio sugerido (con validación visual).
+Campos vacíos → mostrar mensaje “Completa todos los campos”.
 
-Fecha del evento.
+Contraseña y confirmación deben coincidir.
 
-Mensaje personalizado al cliente.
+Rol debe ser “cliente” o “proveedor”.
 
-Botón: Enviar Cotización.
+Manejar error RLS con mensaje visual:
 
-Layout centrado, sin overflow, con Padding simétrico.
+showError("No se pudo crear el perfil. Verifica tus permisos en Supabase.");
 
-7. 📅 Pantalla de Detalle / Confirmación de Evento
+✅ Resultado esperado
 
-Tarjeta con resumen:
+El registro crea correctamente el usuario en auth.users.
 
-Nombre del evento.
+El perfil se inserta automáticamente en profiles.
 
-Proveedor asignado.
+No lanza errores de RLS.
 
-Fecha, estado y monto.
+El diseño visual se alinea con el resto de pantallas FestEasy.
 
-Botones:
-
-Cancelar → alerta visual.
-
-Chat → abre vista de mensajes.
-
-Ver progreso → muestra estado del servicio.
-
-Diseño tipo card layout (Card + ListTile) con fondo claro y tipografía Poppins.
-
-🖌️ Guía de estilo visual
-
-Color primario: #6750A4
-
-Color secundario: #D9C7FF
-
-Tipografía: Poppins o Roboto, con fontWeight.w600 para títulos.
-
-Estilo Material Design 3.
-
-Bordes redondeados (BorderRadius.circular(12) o 16).
-
-Uso coherente de sombras y espaciado (EdgeInsets.all(16)).
-
-Iconografía basada en Icons de Material o íconos personalizados de eventos.
-
-🧱 Estructura modular (solo UI)
-lib/
- ├── core/
- │   ├── theme/
- │   │   └── app_theme.dart        // configuración de colores y tipografía
- │   └── widgets/                  // botones, tarjetas, inputs reutilizables
- ├── presentation/
- │   ├── screens/
- │   │   ├── welcome/              // Pantalla de bienvenida
- │   │   ├── login/                // Login
- │   │   ├── register/             // Registro
- │   │   ├── home_cliente/         // Home Cliente
- │   │   ├── home_proveedor/       // Home Proveedor
- │   │   ├── cotizacion/           // Cotización
- │   │   └── detalle_evento/       // Confirmación
- │   └── widgets/                  // UI Components (cards, inputs, etc.)
- └── main.dart                     // Rutas y configuración inicial
-
-⚙️ Condiciones generales
-
-Las vistas deben respetar los márgenes y el flujo original del prototipo en Stitch.
-
-Evitar cualquier overflow visual o desbordamiento horizontal.
-
-Todas las pantallas deben ser scrollables donde sea necesario.
-
-Debe mantenerse uniformidad de estilo entre cliente y proveedor.
-
-No implementar lógica (backend, autenticación o IA); solo la capa visual.
-
-Los assets (logo, íconos, imágenes decorativas) deben ir en /assets/.
-
-🧩 Resultado esperado
-
-Un proyecto Flutter completamente estructurado visualmente según el diseño de FestEasy, con todas las pantallas conectadas y navegables mediante rutas limpias.
-Sin errores visuales, sin overflow, y con una experiencia de usuario fluida y coherente con el estilo mostrado en el tablero de Stitch.2
+El flujo completo termina en el dashboard correspondiente.

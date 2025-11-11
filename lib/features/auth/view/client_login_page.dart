@@ -1,6 +1,7 @@
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
-import 'package:festeasy_app/features/auth/view/register_page.dart';
 import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
+import 'package:festeasy_app/features/auth/view/email_verification_page.dart'; // Importar EmailVerificationPage
+import 'package:festeasy_app/features/auth/view/register_page.dart';
 import 'package:flutter/material.dart';
 
 class ClientLoginPage extends StatefulWidget {
@@ -30,8 +31,14 @@ class _ClientLoginPageState extends State<ClientLoginPage> {
       final rol = authResult['rol'];
       debugPrint('User role: $rol');
 
-      if (rol == 'usuario' || rol == 'cliente') {
-        if (!mounted) return;
+      if (!mounted) return;
+      if (!_authService.isEmailVerified()) {
+        await Navigator.of(context).pushReplacement(
+          MaterialPageRoute<void>(
+            builder: (context) => const EmailVerificationPage(),
+          ),
+        );
+      } else if (rol == 'usuario' || rol == 'cliente') {
         await Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
             builder: (context) => const ClientDashboard(),
@@ -39,7 +46,6 @@ class _ClientLoginPageState extends State<ClientLoginPage> {
         );
       } else {
         // Not a client, show error
-        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Not a client account')),
         );
@@ -47,6 +53,7 @@ class _ClientLoginPageState extends State<ClientLoginPage> {
     } on Exception catch (e, s) {
       debugPrint('Login error: $e, stack trace: $s');
       if (!mounted) return;
+      // The SnackBar is intentionally not awaited as it's a fire-and-forget UI notification.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred: ${e.toString()}')),
       );
@@ -122,8 +129,9 @@ class _ClientLoginPageState extends State<ClientLoginPage> {
                   ),
                 const SizedBox(height: 16),
                 TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
+                  onPressed: () async {
+                    // The push is intentionally not awaited as it's a fire-and-forget navigation.
+                    await Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (context) => const RegisterPage(),
                       ),

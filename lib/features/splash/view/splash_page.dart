@@ -1,4 +1,5 @@
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
+import 'package:festeasy_app/features/auth/view/email_verification_page.dart'; // Importar EmailVerificationPage
 import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
 import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
@@ -19,7 +20,7 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
     _setupAuthListener();
-    _handleInitialState();
+    Future.microtask(_handleInitialState);
   }
 
   void _setupAuthListener() {
@@ -30,33 +31,50 @@ class _SplashPageState extends State<SplashPage> {
       if (event == AuthChangeEvent.signedIn) {
         debugPrint('User signed in!');
         if (session != null) {
-          final profileData = await _authService.getProfileData();
-          if (profileData != null) {
-            final rol = profileData['rol'];
-            if (rol == 'proveedor') {
-              if (!mounted) return;
-              await Navigator.of(context).pushReplacement(
-                MaterialPageRoute<void>(
-                  builder: (context) => const ProviderDashboard(),
-                ),
-              );
-            } else if (rol == 'usuario' || rol == 'cliente') {
-              if (!mounted) return;
-              await Navigator.of(context).pushReplacement(
-                MaterialPageRoute<void>(
-                  builder: (context) => const ClientDashboard(),
-                ),
-              );
-            }
-          } else {
-            // If profile data is null, it's the first login.
+          if (!_authService.isEmailVerified()) {
             if (!mounted) return;
             await Navigator.of(context).pushReplacement(
               MaterialPageRoute<void>(
-                builder: (context) => const WelcomePage(),
+                builder: (context) => const EmailVerificationPage(),
               ),
             );
+          } else {
+            final profileData = await _authService.getProfileData();
+            if (profileData != null) {
+              final rol = profileData['rol'];
+              if (rol == 'proveedor') {
+                if (!mounted) return;
+                await Navigator.of(context).pushReplacement(
+                  MaterialPageRoute<void>(
+                    builder: (context) => const ProviderDashboard(),
+                  ),
+                );
+              } else if (rol == 'usuario' || rol == 'cliente') {
+                if (!mounted) return;
+                await Navigator.of(context).pushReplacement(
+                  MaterialPageRoute<void>(
+                    builder: (context) => const ClientDashboard(),
+                  ),
+                );
+              }
+            } else {
+              // If profile data is null, something went wrong or user is not fully registered
+              if (!mounted) return;
+              await Navigator.of(context).pushReplacement(
+                MaterialPageRoute<void>(
+                  builder: (context) => const WelcomePage(),
+                ),
+              );
+            }
           }
+        } else {
+          // If session is null, it's the first login.
+          if (!mounted) return;
+          await Navigator.of(context).pushReplacement(
+            MaterialPageRoute<void>(
+              builder: (context) => const WelcomePage(),
+            ),
+          );
         }
       } else if (event == AuthChangeEvent.signedOut) {
         debugPrint('User signed out!');
@@ -70,13 +88,50 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _handleInitialState() async {
     // Add a small delay to allow the auth state listener to fire
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future<void>.delayed(const Duration(milliseconds: 100));
     final session = Supabase.instance.client.auth.currentSession;
     if (session == null) {
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
+      await Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(builder: (context) => const WelcomePage()),
       );
+    } else {
+      if (!_authService.isEmailVerified()) {
+        if (!mounted) return;
+        await Navigator.of(context).pushReplacement(
+          MaterialPageRoute<void>(
+            builder: (context) => const EmailVerificationPage(),
+          ),
+        );
+      } else {
+        final profileData = await _authService.getProfileData();
+        if (profileData != null) {
+          final rol = profileData['rol'];
+          if (rol == 'proveedor') {
+            if (!mounted) return;
+            await Navigator.of(context).pushReplacement(
+              MaterialPageRoute<void>(
+                builder: (context) => const ProviderDashboard(),
+              ),
+            );
+          } else if (rol == 'usuario' || rol == 'cliente') {
+            if (!mounted) return;
+            await Navigator.of(context).pushReplacement(
+              MaterialPageRoute<void>(
+                builder: (context) => const ClientDashboard(),
+              ),
+            );
+          }
+        } else {
+          // If profile data is null, something went wrong or user is not fully registered
+          if (!mounted) return;
+          await Navigator.of(context).pushReplacement(
+            MaterialPageRoute<void>(
+              builder: (context) => const WelcomePage(),
+            ),
+          );
+        }
+      }
     }
   }
 

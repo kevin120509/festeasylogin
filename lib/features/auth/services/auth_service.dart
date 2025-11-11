@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+/// Servicio de autenticación que interactúa con Supabase.
+/// La persistencia de la sesión del usuario (recordar el inicio de sesión)
+/// es manejada automáticamente por el SDK de Supabase.
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
@@ -71,6 +74,21 @@ class AuthService {
         'rol': rol,
         'created_at': DateTime.now().toIso8601String(),
       });
+
+      // Insert into specific role table
+      if (rol == 'cliente') {
+        await _supabase.from('clientes').insert({
+          'user_id': user.id,
+          'full_name': fullName,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      } else if (rol == 'proveedor') {
+        await _supabase.from('proveedores').insert({
+          'user_id': user.id,
+          'full_name': fullName,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      }
     }
     return user;
   }
@@ -93,5 +111,24 @@ class AuthService {
       debugPrint('Error fetching profile data: $e, stack trace: $s');
       return null;
     }
+  }
+
+  bool isEmailVerified() {
+    final user = _supabase.auth.currentUser;
+    return user?.emailConfirmedAt != null;
+  }
+
+  Future<void> sendEmailVerification() async {
+    final user = _supabase.auth.currentUser;
+    if (user != null) {
+      await _supabase.auth.resend(
+        type: OtpType.signup,
+        email: user.email,
+      );
+    }
+  }
+
+  Future<void> reloadUser() async {
+    await _supabase.auth.refreshSession();
   }
 }

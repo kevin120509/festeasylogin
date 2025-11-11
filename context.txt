@@ -1,0 +1,114 @@
+-- 1. Tabla de Perfiles (Contiene datos públicos y el rol)
+
+CREATE TABLE public.profiles (
+
+  id UUID NOT NULL PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+
+  full_name TEXT NOT NULL,
+
+  rol TEXT NOT NULL CHECK (rol IN ('cliente', 'proveedor')),
+
+  created_at TIMESTAMPTZ DEFAULT NOW()
+
+);
+
+-- Habilitar RLS
+
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+
+-- 2. Tabla de Clientes (Datos específicos de clientes)
+
+CREATE TABLE public.clientes (
+
+  user_id UUID NOT NULL PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+
+  created_at TIMESTAMPTZ DEFAULT NOW()
+
+);
+
+-- Habilitar RLS
+
+ALTER TABLE public.clientes ENABLE ROW LEVEL SECURITY;
+
+
+-- 3. Tabla de Proveedores (Datos específicos de proveedores)
+
+CREATE TABLE public.proveedores (
+
+  user_id UUID NOT NULL PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+
+  created_at TIMESTAMPTZ DEFAULT NOW()
+
+);
+
+-- Habilitar RLS
+
+ALTER TABLE public.proveedores ENABLE ROW LEVEL SECURITY;
+
+-- PASO 1: CREAR LA FUNCIÓN
+
+-- Esta función se ejecutará cada vez que un nuevo usuario se registre.
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+
+RETURNS TRIGGER
+
+LANGUAGE plpgsql
+
+SECURITY DEFINER
+
+AS $$
+
+BEGIN
+
+  -- 1. Inserta en la tabla 'profiles'
+
+  -- Obtiene el ID de auth.users (NEW.id)
+
+  -- Obtiene el 'rol' y 'full_name' de los metadatos enviados desde Flutter
+
+  INSERT INTO public.profiles (id, full_name, rol)
+
+  VALUES (
+
+    NEW.id,
+
+    NEW.raw_user_meta_data ->> 'full_name',
+
+    NEW.raw_user_meta_data ->> 'rol'
+
+  );
+
+
+  -- 2. Inserta condicionalmente en la tabla 'clientes' o 'proveedores'
+
+  IF (NEW.raw_user_meta_data ->> 'rol' = 'cliente') THEN
+
+    INSERT INTO public.clientes (user_id) VALUES (NEW.id);
+
+  ELSIF (NEW.raw_user_meta_data ->> 'rol' = 'proveedor') THEN
+
+    INSERT INTO public.proveedores (user_id) VALUES (NEW.id);
+
+  END IF;
+
+
+  RETURN NEW;
+
+END;
+
+$$;
+
+
+-- PASO 2: CREAR EL TRIGGER
+
+-- Esto "conecta" la función anterior a la tabla auth.users
+
+CREATE TRIGGER on_auth_user_created
+
+  AFTER INSERT ON auth.users
+
+  FOR EACH ROW
+
+  EXECUTE FUNCTION public.handle_new_user();
