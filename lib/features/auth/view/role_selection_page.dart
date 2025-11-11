@@ -1,6 +1,5 @@
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
-import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
-import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
+import 'package:festeasy_app/features/auth/view/set_password_page.dart';
 import 'package:flutter/material.dart';
 
 class RoleSelectionPage extends StatelessWidget {
@@ -20,7 +19,7 @@ class RoleSelectionPage extends StatelessWidget {
               onPressed: () async {
                 await _authService.createProfile('usuario');
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const ClientDashboard()),
+                  MaterialPageRoute(builder: (context) => const SetPasswordPage()),
                 );
               },
               child: const Text('I am a Customer'),
@@ -30,7 +29,7 @@ class RoleSelectionPage extends StatelessWidget {
               onPressed: () async {
                 await _authService.createProfile('proveedor');
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const ProviderDashboard()),
+                  MaterialPageRoute(builder: (context) => const SetPasswordPage()),
                 );
               },
               child: const Text('I am a Provider'),

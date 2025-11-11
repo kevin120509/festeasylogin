@@ -19,21 +19,28 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    final user = await _authService.signIn(
-      _emailController.text,
-      _passwordController.text,
-    );
-
-    if (user == null) {
-      // Handle login error
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to sign in')),
+    try {
+      final user = await _authService.signIn(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
       );
-    }
 
-    setState(() {
-      _isLoading = false;
-    });
+      if (user == null) {
+        // Handle login error
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to sign in')),
+        );
+      }
+    } catch (e) {
+      print('Login error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _sendMagicLink() async {
@@ -41,15 +48,20 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    await _authService.sendMagicLink(_emailController.text);
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Magic link sent! Check your email.')),
-    );
+    try {
+      await _authService.sendMagicLink(_emailController.text);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Magic link sent! Check your email.')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
