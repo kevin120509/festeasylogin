@@ -1,3 +1,4 @@
+import 'package:festeasy_app/core/theme/app_theme.dart';
 import 'package:festeasy_app/features/auth/view/login_page.dart';
 import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
@@ -11,12 +12,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        appBarTheme: AppBarTheme(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        ),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: const SplashPage(),

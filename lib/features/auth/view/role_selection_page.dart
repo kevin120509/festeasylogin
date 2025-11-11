@@ -4,9 +4,8 @@ import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
 import 'package:flutter/material.dart';
 
 class RoleSelectionPage extends StatelessWidget {
-  final AuthService _authService = AuthService();
-
   RoleSelectionPage({super.key});
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +19,9 @@ class RoleSelectionPage extends StatelessWidget {
               onPressed: () async {
                 await _authService.createProfile('usuario');
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const ClientDashboard()),
+                  MaterialPageRoute(
+                    builder: (context) => const ClientDashboard(),
+                  ),
                 );
               },
               child: const Text('I am a Customer'),
@@ -30,7 +31,9 @@ class RoleSelectionPage extends StatelessWidget {
               onPressed: () async {
                 await _authService.createProfile('proveedor');
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const ProviderDashboard()),
+                  MaterialPageRoute(
+                    builder: (context) => const ProviderDashboard(),
+                  ),
                 );
               },
               child: const Text('I am a Provider'),

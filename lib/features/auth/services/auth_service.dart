@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
@@ -46,12 +45,12 @@ class AuthService {
         .eq('id', user.id)
         .single();
 
-    if (profileResponse == null || profileResponse.isEmpty) {
+    if (profileResponse.isEmpty) {
       return null;
     }
 
     final rol = profileResponse['rol'];
-    Map<String, dynamic> profileData = {'rol': rol};
+    final profileData = <String, dynamic>{'rol': rol};
 
     if (rol == 'proveedor') {
       final providerResponse = await _supabase
@@ -59,18 +58,14 @@ class AuthService {
           .select()
           .eq('user_id', user.id)
           .single();
-      if (providerResponse != null) {
-        profileData.addAll(providerResponse);
-      }
+      profileData.addAll(providerResponse);
     } else if (rol == 'usuario') {
       final clientResponse = await _supabase
           .from('clientes')
           .select()
           .eq('user_id', user.id)
           .single();
-      if (clientResponse != null) {
-        profileData.addAll(clientResponse);
-      }
+      profileData.addAll(clientResponse);
     }
 
     return profileData;

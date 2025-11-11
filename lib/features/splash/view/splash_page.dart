@@ -1,8 +1,8 @@
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
-import 'package:festeasy_app/features/auth/view/login_page.dart';
 import 'package:festeasy_app/features/auth/view/role_selection_page.dart';
 import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
+import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -24,8 +24,8 @@ class _SplashPageState extends State<SplashPage> {
 
   void _setupAuthListener() {
     Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
-      final AuthChangeEvent event = data.event;
-      final Session? session = data.session;
+      final event = data.event;
+      final session = data.session;
 
       if (event == AuthChangeEvent.signedIn) {
         print('User signed in!');
@@ -36,12 +36,14 @@ class _SplashPageState extends State<SplashPage> {
             if (rol == 'proveedor') {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                    builder: (context) => const ProviderDashboard()),
+                  builder: (context) => const ProviderDashboard(),
+                ),
               );
             } else if (rol == 'usuario') {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                    builder: (context) => const ClientDashboard()),
+                  builder: (context) => const ClientDashboard(),
+                ),
               );
             }
           } else {
@@ -54,7 +56,7 @@ class _SplashPageState extends State<SplashPage> {
       } else if (event == AuthChangeEvent.signedOut) {
         print('User signed out!');
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const LoginPage()),
+          MaterialPageRoute(builder: (context) => const WelcomePage()),
         );
       }
     });
@@ -63,7 +65,7 @@ class _SplashPageState extends State<SplashPage> {
     final session = Supabase.instance.client.auth.currentSession;
     if (session == null) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LoginPage()),
+        MaterialPageRoute(builder: (context) => const WelcomePage()),
       );
     }
   }
