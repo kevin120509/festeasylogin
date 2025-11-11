@@ -1,0 +1,64 @@
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class AuthService {
+  final SupabaseClient _supabase = Supabase.instance.client;
+
+  Future<User?> signIn(String email, String password) async {
+    final response = await _supabase.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
+    return response.user;
+  }
+
+  Future<User?> signUp(String email, String password) async {
+    final response = await _supabase.auth.signUp(
+      email: email,
+      password: password,
+    );
+    return response.user;
+  }
+
+  Future<Map<String, dynamic>?> getProfileData() async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) {
+      return null;
+    }
+
+    final profileResponse = await _supabase
+        .from('profiles')
+        .select('rol')
+        .eq('id', user.id)
+        .single();
+
+    if (profileResponse == null) {
+      return null;
+    }
+
+    final rol = profileResponse['rol'];
+    Map<String, dynamic> profileData = {'rol': rol};
+
+    if (rol == 'proveedor') {
+      final providerResponse = await _supabase
+          .from('proveedores')
+          .select()
+          .eq('user_id', user.id)
+          .single();
+      if (providerResponse != null) {
+        profileData.addAll(providerResponse);
+      }
+    } else if (rol == 'usuario') {
+      final clientResponse = await _supabase
+          .from('clientes')
+          .select()
+          .eq('user_id', user.id)
+          .single();
+      if (clientResponse != null) {
+        profileData.addAll(clientResponse);
+      }
+    }
+
+    return profileData;
+  }
+}
