@@ -50,7 +50,7 @@ class EventDetailPage extends StatelessWidget {
                   children: [
                     TextButton.icon(
                       onPressed: () {
-                        // TODO: Implement cancel logic
+                        // TODO(user): Implement cancel logic
                       },
                       icon: const Icon(Icons.cancel, color: Colors.red),
                       label: const Text(
@@ -60,14 +60,14 @@ class EventDetailPage extends StatelessWidget {
                     ),
                     TextButton.icon(
                       onPressed: () {
-                        // TODO: Implement chat logic
+                        // TODO(user): Implement chat logic
                       },
                       icon: const Icon(Icons.chat),
                       label: const Text('Chat'),
                     ),
                     TextButton.icon(
                       onPressed: () {
-                        // TODO: Implement progress logic
+                        // TODO(user): Implement progress logic
                       },
                       icon: const Icon(Icons.timeline),
                       label: const Text('Ver progreso'),

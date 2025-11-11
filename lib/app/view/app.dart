@@ -1,8 +1,7 @@
 import 'package:festeasy_app/core/theme/app_theme.dart';
-import 'package:festeasy_app/features/auth/view/login_page.dart';
 import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
-import 'package:festeasy_app/features/splash/view/splash_page.dart';
+import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
 import 'package:festeasy_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
@@ -15,9 +14,8 @@ class App extends StatelessWidget {
       theme: AppTheme.lightTheme,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const SplashPage(),
+      home: const WelcomePage(),
       routes: {
-        '/login': (context) => const LoginPage(),
         '/provider_dashboard': (context) => const ProviderDashboard(),
         '/client_dashboard': (context) => const ClientDashboard(),
       },

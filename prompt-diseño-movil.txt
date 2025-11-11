@@ -193,4 +193,4 @@ Los assets (logo, íconos, imágenes decorativas) deben ir en /assets/.
 🧩 Resultado esperado
 
 Un proyecto Flutter completamente estructurado visualmente según el diseño de FestEasy, con todas las pantallas conectadas y navegables mediante rutas limpias.
-Sin errores visuales, sin overflow, y con una experiencia de usuario fluida y coherente con el estilo mostrado en el tablero de Stitch.
+Sin errores visuales, sin overflow, y con una experiencia de usuario fluida y coherente con el estilo mostrado en el tablero de Stitch.2

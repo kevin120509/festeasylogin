@@ -14,7 +14,7 @@ class _QuotationPageState extends State<QuotationPage> {
   final _messageController = TextEditingController();
 
   void _submitQuotation() {
-    // TODO: Implement submitQuotation logic
+    // TODO(user): Implement submitQuotation logic
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Cotización enviada')),
     );

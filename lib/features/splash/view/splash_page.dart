@@ -1,5 +1,4 @@
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
-import 'package:festeasy_app/features/auth/view/role_selection_page.dart';
 import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
 import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
@@ -20,6 +19,7 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
     _setupAuthListener();
+    _handleInitialState();
   }
 
   void _setupAuthListener() {
@@ -28,44 +28,54 @@ class _SplashPageState extends State<SplashPage> {
       final session = data.session;
 
       if (event == AuthChangeEvent.signedIn) {
-        print('User signed in!');
+        debugPrint('User signed in!');
         if (session != null) {
           final profileData = await _authService.getProfileData();
           if (profileData != null) {
             final rol = profileData['rol'];
             if (rol == 'proveedor') {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
+              if (!mounted) return;
+              await Navigator.of(context).pushReplacement(
+                MaterialPageRoute<void>(
                   builder: (context) => const ProviderDashboard(),
                 ),
               );
-            } else if (rol == 'usuario') {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
+            } else if (rol == 'usuario' || rol == 'cliente') {
+              if (!mounted) return;
+              await Navigator.of(context).pushReplacement(
+                MaterialPageRoute<void>(
                   builder: (context) => const ClientDashboard(),
                 ),
               );
             }
           } else {
             // If profile data is null, it's the first login.
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => RoleSelectionPage()),
+            if (!mounted) return;
+            await Navigator.of(context).pushReplacement(
+              MaterialPageRoute<void>(
+                builder: (context) => const WelcomePage(),
+              ),
             );
           }
         }
       } else if (event == AuthChangeEvent.signedOut) {
-        print('User signed out!');
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const WelcomePage()),
+        debugPrint('User signed out!');
+        if (!mounted) return;
+        await Navigator.of(context).pushReplacement(
+          MaterialPageRoute<void>(builder: (context) => const WelcomePage()),
         );
       }
     });
+  }
 
-    // Handle initial state
+  Future<void> _handleInitialState() async {
+    // Add a small delay to allow the auth state listener to fire
+    await Future.delayed(const Duration(milliseconds: 100));
     final session = Supabase.instance.client.auth.currentSession;
     if (session == null) {
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const WelcomePage()),
+        MaterialPageRoute<void>(builder: (context) => const WelcomePage()),
       );
     }
   }
