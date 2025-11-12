@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -16,9 +15,9 @@ class HomeScreen extends StatelessWidget {
           style: TextStyle(color: Colors.black),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60.0),
+          preferredSize: const Size.fromHeight(60),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Buscar eventos',
@@ -26,7 +25,7 @@ class HomeScreen extends StatelessWidget {
                 filled: true,
                 fillColor: Colors.grey[200],
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
+                  borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -37,7 +36,7 @@ class HomeScreen extends StatelessWidget {
       body: ListView(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -47,8 +46,8 @@ class HomeScreen extends StatelessWidget {
                   onSelected: (selected) {},
                   backgroundColor: Colors.grey[200],
                   selectedColor: Colors.red,
-                  labelStyle: TextStyle(
-                    color: true ? Colors.white : Colors.black,
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
                   ),
                 ),
                 ChoiceChip(
@@ -69,7 +68,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               'Próximos',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -88,7 +87,7 @@ class HomeScreen extends StatelessWidget {
             urlImagen: 'https://via.placeholder.com/100',
           ),
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Text(
               'Pasados',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -109,7 +108,6 @@ class HomeScreen extends StatelessWidget {
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
-        currentIndex: 0,
         selectedItemColor: Colors.red,
         unselectedItemColor: Colors.grey,
         items: const [
@@ -136,11 +134,6 @@ class HomeScreen extends StatelessWidget {
 }
 
 class EventCard extends StatelessWidget {
-  final String fecha;
-  final String titulo;
-  final String lugar;
-  final String urlImagen;
-
   const EventCard({
     super.key,
     required this.fecha,
@@ -149,17 +142,22 @@ class EventCard extends StatelessWidget {
     required this.urlImagen,
   });
 
+  final String fecha;
+  final String titulo;
+  final String lugar;
+  final String urlImagen;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10.0),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withAlpha((255 * 0.2).round()),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -176,15 +174,15 @@ class EventCard extends StatelessWidget {
                   fecha,
                   style: const TextStyle(color: Colors.grey),
                 ),
-                const SizedBox(height: 8.0),
+                const SizedBox(height: 8),
                 Text(
                   titulo,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16.0,
+                    fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 8.0),
+                const SizedBox(height: 8),
                 Text(
                   lugar,
                   style: const TextStyle(color: Colors.grey),
@@ -192,9 +190,9 @@ class EventCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 16.0),
+          const SizedBox(width: 16),
           ClipRRect(
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(10),
             child: Image.network(
               urlImagen,
               width: 100,

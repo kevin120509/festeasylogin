@@ -50,10 +50,11 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
   Future<void> _checkEmailVerification() async {
     // Reload user session to get updated email_confirmed_at status
     await _authService.reloadUser();
+    if (!mounted) return; // Added this check
     if (_authService.isEmailVerified()) {
-      if (!mounted) return;
       // Navigate to appropriate dashboard based on user role
       final profileData = await _authService.getProfileData();
+      if (!mounted) return; // Added this check
       if (profileData != null) {
         final rol = profileData['rol'];
         if (rol == 'cliente' || rol == 'usuario') {
