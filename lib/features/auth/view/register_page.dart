@@ -203,7 +203,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ElevatedButton(
                   onPressed: _register,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6750A4), // Color primario
+                    backgroundColor: Colors.red, // Color primario
                     foregroundColor: Colors.white, // Texto blanco
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),

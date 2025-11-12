@@ -1,3 +1,4 @@
+import 'package:festeasy_app/features/auth/view/register_page.dart';
 import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -13,7 +14,6 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final SupabaseClient supabase = Supabase.instance.client;
-  bool _rememberMe = false;
   bool _isLoading = false;
 
   Future<void> _signIn() async {
@@ -75,6 +75,13 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: Image.asset(
+                  'assets/logoFestEasy.png',
+                  height: 150, // Adjust height as needed
+                ),
+              ),
+              const SizedBox(height: 40),
               const Text('Correo electrónico o nombre de usuario', 
                   style: TextStyle(fontWeight: FontWeight.w500)),
               const SizedBox(height: 8),
@@ -99,47 +106,13 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              const SizedBox(height: 16),
-
-              Row(
-                children: [
-                  SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: Checkbox(
-                      value: _rememberMe,
-                      activeColor: Theme.of(context).primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                      onChanged: (value) {
-                        setState(() {
-                          _rememberMe = value ?? false;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text('Recordarme'),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Funcionalidad de recuperar contraseña pendiente')));
-                    },
-                    child: Text(
-                      '¿Olvidaste tu contraseña?',
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 32),
+              const SizedBox(height: 24), // Added spacing here
 
               ElevatedButton(
                 onPressed: _isLoading ? null : _signIn,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                ),
                 child: _isLoading 
                     ? const SizedBox(
                         height: 20, width: 20, 
@@ -156,12 +129,15 @@ class _LoginPageState extends State<LoginPage> {
                   const Text('¿No tienes una cuenta? ', style: TextStyle(color: Colors.grey)),
                   GestureDetector(
                     onTap: () {
-                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ir a pantalla de registro')));
+                       Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(builder: (context) => const RegisterPage()),
+                      );
                     },
-                    child: Text(
+                    child: const Text(
                       'Regístrate',
                       style: TextStyle(
-                        color: Theme.of(context).primaryColor,
+                        color: Colors.red,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

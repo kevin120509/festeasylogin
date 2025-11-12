@@ -1,14 +1,46 @@
+import 'package:festeasy_app/features/auth/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
-class ClientDashboard extends StatelessWidget {
+class ClientDashboard extends StatefulWidget {
   const ClientDashboard({super.key});
 
   @override
+  State<ClientDashboard> createState() => _ClientDashboardState();
+}
+
+class _ClientDashboardState extends State<ClientDashboard> {
+  final AuthService _authService = AuthService();
+  String? _userName;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final profileData = await _authService.getProfileData();
+    if (profileData != null) {
+      setState(() {
+        _userName = profileData['full_name'] as String?;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final providerImages = [
+      'assets/proveedores/alimentos y catering.png',
+      'assets/proveedores/decoracion de eventos.png',
+      'assets/proveedores/fotografia y evento.png',
+      'assets/proveedores/musicaDJ.png',
+      'assets/proveedores/show.png',
+    ];
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Hola, [nombre] 👋'),
+        title: Text('Hola, ${_userName ?? ''} 👋'),
         actions: [
           IconButton(
             icon: const CircleAvatar(
@@ -55,7 +87,7 @@ class ClientDashboard extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6750A4),
+                  backgroundColor: Colors.red,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -78,13 +110,32 @@ class ClientDashboard extends StatelessWidget {
                 height: 150,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: 5,
+                  itemCount: providerImages.length,
                   itemBuilder: (context, index) {
-                    return const Card(
-                      margin: EdgeInsets.only(right: 16),
+                    final imagePath = providerImages[index];
+                    final title = imagePath
+                        .split('/')
+                        .last
+                        .split('.')
+                        .first;
+                    return Card(
+                      margin: const EdgeInsets.only(right: 16),
                       child: SizedBox(
                         width: 150,
-                        child: Center(child: Text('Proveedor')),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Image.asset(
+                                imagePath,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Text(title),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
