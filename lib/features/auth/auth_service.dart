@@ -1,16 +1,7 @@
 // lib/features/auth/auth_service.dart
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Registra un nuevo usuario en Supabase con email, contraseña y metadatos adicionales,
-/// incluyendo el rol del usuario.
-///
-/// [email]: El correo electrónico del usuario.
-/// [password]: La contraseña del usuario.
-/// [username]: El nombre de usuario deseado.
-/// [fullName]: El nombre completo del usuario.
-/// [rol]: El rol del usuario ('cliente' o 'proveedor').
-///
-/// Retorna un [AuthResponse] si el registro es exitoso, o `null` si ocurre un error.
+/// Registra un nuevo usuario con correo electrónico, contraseña, nombre de usuario,
 Future<AuthResponse?> signUpUser({
   required String email,
   required String password,
@@ -48,15 +39,10 @@ Future<AuthResponse?> signUpUser({
   }
 }
 
-/// Reenvía el correo de confirmación a un usuario.
-///
-/// [email]: El correo electrónico del usuario al que se le reenviará la confirmación.
-///
-/// Retorna `true` si el correo se reenvió exitosamente, `false` en caso contrario.
 Future<bool> resendConfirmationEmail({required String email}) async {
   try {
     await Supabase.instance.client.auth.resend(
-      type: AuthResponseType.signup, // O AuthResponseType.emailChange si es para cambio de email
+      type: OtpType.signup, // O AuthResponseType.emailChange si es para cambio de email
       email: email,
     );
     print('Correo de confirmación reenviado a $email');

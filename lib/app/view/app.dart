@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import 'dart:async'; // Added for StreamSubscription
 import 'package:flutter/services.dart'; // Added for PlatformException
 import 'package:uni_links/uni_links.dart'; // Added for uni_links
@@ -5,9 +6,11 @@ import 'package:festeasy_app/core/theme/app_theme.dart';
 import 'package:festeasy_app/features/dashboard/home_screen.dart';
 import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
+=======
+import 'package:festeasy_app/features/auth/view/login_page.dart';
+>>>>>>> 25ed4c27e52ec49a68cc98b89f1868e1e0621859
 import 'package:festeasy_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; // Added for Supabase client
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -17,76 +20,53 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  StreamSubscription? _sub;
-
   @override
   void initState() {
     super.initState();
-    _initUniLinks();
-  }
-
-  Future<void> _initUniLinks() async {
-    // Manejar el deep link inicial si la app se abre con uno
-    try {
-      final initialLink = await getInitialLink();
-      _handleLink(initialLink);
-    } on PlatformException {
-      // Manejar errores de plataforma
-    }
-
-    // Manejar deep links mientras la app está en ejecución
-    _sub = uriLinkStream.listen((Uri? uri) {
-      _handleLink(uri?.toString());
-    }, onError: (err) {
-      // Manejar errores
-    });
-
-    // Escuchar cambios en el estado de autenticación de Supabase
-    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-      final AuthChangeEvent event = data.event;
-      if (event == AuthChangeEvent.signedIn) {
-        // El usuario ha iniciado sesión o su sesión ha sido confirmada
-        // Aquí puedes añadir lógica para navegar a la pantalla principal
-        print('Usuario confirmado y logeado!');
-        // Ejemplo de navegación:
-        // Navigator.of(context).pushReplacementNamed('/home');
-      }
-    });
-  }
-
-  void _handleLink(String? link) {
-    if (link != null) {
-      final uri = Uri.parse(link);
-      // Supabase maneja automáticamente la sesión si el deep link es de confirmación
-      // o de restablecimiento de contraseña. Solo necesitas asegurarte de que
-      // el cliente de Supabase esté escuchando.
-      // La librería supabase_flutter ya hace esto internamente cuando se inicializa.
-      // Sin embargo, puedes añadir lógica aquí si necesitas navegar a una pantalla específica.
-
-      if (uri.path == '/login-callback') {
-        print('Deep link de Supabase recibido: $link');
-        // Puedes añadir lógica de navegación específica aquí si es necesario
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _sub?.cancel();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: AppTheme.lightTheme,
+      theme: ThemeData(
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: IconThemeData(color: Colors.black),
+          titleTextStyle: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Colors.grey),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Colors.blue),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            minimumSize: const Size(double.infinity, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+<<<<<<< HEAD
       home: const HomeScreen(),
       routes: {
         '/provider_dashboard': (context) => const ProviderDashboard(),
         '/client_dashboard': (context) => const ClientDashboard(),
       },
+=======
+      home: const LoginPage(),
+>>>>>>> 25ed4c27e52ec49a68cc98b89f1868e1e0621859
     );
   }
 }
