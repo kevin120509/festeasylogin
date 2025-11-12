@@ -15,9 +15,9 @@ class HomeScreen extends StatelessWidget {
           style: TextStyle(color: Colors.black),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60.0),
+          preferredSize: const Size.fromHeight(60),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Buscar eventos',
@@ -25,7 +25,7 @@ class HomeScreen extends StatelessWidget {
                 filled: true,
                 fillColor: Colors.grey[200],
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
+                  borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -68,7 +68,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               'Próximos',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
