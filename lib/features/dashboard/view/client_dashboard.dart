@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
-import 'package:festeasy_app/core/local_storage.dart' as AppLocalStorage;
-import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -83,72 +81,6 @@ class _ClientDashboardState extends State<ClientDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: _selectedTabIndex == 0
-            ? Text('Hola, ${_userName ?? ''} 👋')
-            : _selectedTabIndex == 1
-            ? const Text('Perfil')
-            : const Text('Ajustes'),
-        actions: [
-          if (_selectedTabIndex == 0)
-            IconButton(
-              icon: const CircleAvatar(
-                backgroundColor: Colors.red,
-                child: Icon(Icons.shopping_cart, color: Colors.white),
-              ),
-              onPressed: () async {
-                await Navigator.pushNamed(context, '/payment');
-              },
-            ),
-        ],
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: _buildTabContent(),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedTabIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedTabIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Inicio',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Perfil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Ajustes',
-          ),
-        ],
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFFEA4D4D),
-        unselectedItemColor: Colors.grey,
-      ),
-    );
-  }
-
-  Widget _buildTabContent() {
-    switch (_selectedTabIndex) {
-      case 0:
-        return _buildInitioTab();
-      case 1:
-        return _buildPerfilTab();
-      case 2:
-        return _buildAjustesTab();
-      default:
-        return _buildInitioTab();
-    }
-  }
-
-  Widget _buildInitioTab() {
     final providerImages = [
       'assets/proveedores/alimentos y catering.png',
       'assets/proveedores/decoracion de eventos.png',
@@ -175,214 +107,153 @@ class _ClientDashboardState extends State<ClientDashboard> {
       },
     ];
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const TextField(
-              decoration: InputDecoration(
-                hintText: 'Buscar servicios para mi evento',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.white,
-              ),
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        title: Text('Hola, ${_userName ?? ''} 👋'),
+        actions: [
+          IconButton(
+            icon: const CircleAvatar(
+              backgroundColor: Colors.red,
+              child: Icon(Icons.shopping_cart, color: Colors.white),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _eventDescriptionController,
-              decoration: const InputDecoration(
-                hintText: 'Describe tu evento',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.white,
-              ),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _eventTitleController,
-              decoration: const InputDecoration(
-                hintText: 'Título del evento',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: _submitRequest,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEA4D4D),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: const Center(
-                child: Text(
-                  'Enviar solicitud al proveedor',
-                  style: TextStyle(color: Colors.white),
+            onPressed: () async {
+              await Navigator.pushNamed(context, '/payment');
+            },
+          ),
+        ],
+        backgroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const TextField(
+                decoration: InputDecoration(
+                  hintText: 'Buscar servicios para mi evento',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Proveedores recomendados',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 150,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: providerImages.length,
-                itemBuilder: (context, index) {
-                  final imagePath = providerImages[index];
-                  final title = imagePath.split('/').last.split('.').first;
-                  return Card(
-                    margin: const EdgeInsets.only(right: 16),
-                    child: SizedBox(
-                      width: 150,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Image.asset(
-                              imagePath,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Text(title),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+              const SizedBox(height: 16),
+              const TextField(
+                decoration: InputDecoration(
+                  hintText: 'Describe tu evento',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+                maxLines: 3,
               ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Cotizaciones recientes',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 150,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: recentQuotations.length,
-                itemBuilder: (context, index) {
-                  final quotation = recentQuotations[index];
-                  return Card(
-                    margin: const EdgeInsets.only(right: 16),
-                    child: SizedBox(
-                      width: 200,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Center(
+                  child: Text(
+                    'Generar sugerencias',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Proveedores recomendados',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 150,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: providerImages.length,
+                  itemBuilder: (context, index) {
+                    final imagePath = providerImages[index];
+                    final title = imagePath.split('/').last.split('.').first;
+                    return Card(
+                      margin: const EdgeInsets.only(right: 16),
+                      child: SizedBox(
+                        width: 150,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              quotation['title']!,
-                              style: Theme.of(context).textTheme.titleMedium,
+                            Expanded(
+                              child: Image.asset(
+                                imagePath,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(quotation['provider']!),
-                            const Spacer(),
-                            Text(
-                              quotation['price']!,
-                              style: Theme.of(context).textTheme.titleLarge,
+                            Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Text(title),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPerfilTab() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.person, size: 80, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text('Perfil del Cliente'),
-            const SizedBox(height: 8),
-            Text(
-              'Aquí irá la información de tu perfil',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  await Supabase.instance.client.auth.signOut();
-                } catch (_) {}
-                if (!mounted) return;
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute<void>(builder: (_) => const WelcomePage()),
-                  (route) => false,
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEA4D4D),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 14,
-                  horizontal: 24,
+                    );
+                  },
                 ),
               ),
-              child: const Text(
-                'Cerrar sesión',
-                style: TextStyle(color: Colors.white),
+              const SizedBox(height: 24),
+              Text(
+                'Cotizaciones recientes',
+                style: Theme.of(context).textTheme.titleLarge,
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAjustesTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.settings, size: 80, color: Colors.grey),
-          const SizedBox(height: 16),
-          const Text('Ajustes'),
-          const SizedBox(height: 8),
-          Text(
-            'Aquí irán tus configuraciones',
-            style: Theme.of(context).textTheme.bodyMedium,
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 150,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: recentQuotations.length,
+                  itemBuilder: (context, index) {
+                    final quotation = recentQuotations[index];
+                    return Card(
+                      margin: const EdgeInsets.only(right: 16),
+                      child: SizedBox(
+                        width: 200,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                quotation['title']!,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(quotation['provider']!),
+                              const Spacer(),
+                              Text(
+                                quotation['price']!,
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
