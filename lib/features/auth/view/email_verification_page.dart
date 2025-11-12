@@ -35,7 +35,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al reenviar el correo: ${e.toString()}'),
+          content: Text('Error al reenviar el correo: $e'),
         ),
       );
     } finally {
@@ -94,7 +94,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

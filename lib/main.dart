@@ -7,12 +7,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
-    url: 'https://mvmoxejnuyulsfkbdrrf.supabase.co',
+    url: 'https://mwldonzgeruhrsfirfop.supabase.co',
     anonKey:
         // The anonKey is intentionally longer than 80 characters.
         // ignore: lines_longer_than_80_chars
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12bW94ZWpudXl1bHNma2JkcnJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4ODExNDYsImV4cCI6MjA3ODQ1NzE0Nn0'
-        '.5hCZXEZ924_UkmHr2LJ8KO1ef-_ULLseh78wbZDCi8Q',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13bGRvbnpnZXJ1aHJzZmlyZm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5MTYwMzAsImV4cCI6MjA3ODQ5MjAzMH0.ZefZzLerTtke3rj3lD1DItLVbcBkUMBZ65p98Hk2H6w',
   );
   await bootstrap(() => const App());
 }

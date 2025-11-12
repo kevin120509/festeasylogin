@@ -75,7 +75,7 @@ class _RegisterPageState extends State<RegisterPage> {
         // The SnackBar is intentionally not awaited as it's a fire-and-forget UI notification.
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ocurrió un error: ${e.toString()}'),
+            content: Text('Ocurrió un error: $e'),
           ),
         );
       } finally {

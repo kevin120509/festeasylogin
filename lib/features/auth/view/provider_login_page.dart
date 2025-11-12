@@ -55,7 +55,7 @@ class _ProviderLoginPageState extends State<ProviderLoginPage> {
       if (!mounted) return;
       // The SnackBar is intentionally not awaited as it's a fire-and-forget UI notification.
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred: ${e.toString()}')),
+        SnackBar(content: Text('An error occurred: $e')),
       );
     } finally {
       if (mounted) {
