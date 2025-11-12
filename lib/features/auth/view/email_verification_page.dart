@@ -26,7 +26,9 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Correo de verificación reenviado. Revisa tu bandeja de entrada.'),
+          content: Text(
+            'Correo de verificación reenviado. Revisa tu bandeja de entrada.',
+          ),
         ),
       );
     } on Exception catch (e) {
@@ -47,7 +49,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
 
   Future<void> _checkEmailVerification() async {
     // Reload user session to get updated email_confirmed_at status
-    await _authService.reloadUser(); 
+    await _authService.reloadUser();
     if (_authService.isEmailVerified()) {
       if (!mounted) return;
       // Navigate to appropriate dashboard based on user role
@@ -56,11 +58,15 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
         final rol = profileData['rol'];
         if (rol == 'cliente' || rol == 'usuario') {
           await Navigator.of(context).pushReplacement(
-            MaterialPageRoute<void>(builder: (context) => const ClientDashboard()),
+            MaterialPageRoute<void>(
+              builder: (context) => const ClientDashboard(),
+            ),
           );
         } else if (rol == 'proveedor') {
           await Navigator.of(context).pushReplacement(
-            MaterialPageRoute<void>(builder: (context) => const ProviderDashboard()),
+            MaterialPageRoute<void>(
+              builder: (context) => const ProviderDashboard(),
+            ),
           );
         }
       } else {
@@ -109,7 +115,10 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 15,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -132,7 +141,9 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                   await _supabase.auth.signOut();
                   if (!mounted) return;
                   await Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute<void>(builder: (context) => const WelcomePage()),
+                    MaterialPageRoute<void>(
+                      builder: (context) => const WelcomePage(),
+                    ),
                     (Route<dynamic> route) => false,
                   );
                 },
