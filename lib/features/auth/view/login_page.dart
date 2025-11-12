@@ -32,18 +32,30 @@ class _LoginPageState extends State<LoginPage> {
       if (user != null) {
         if (mounted) {
           await Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute<dynamic>(builder: (context) => const ClientDashboard()),
+            MaterialPageRoute<dynamic>(
+              builder: (context) => const ClientDashboard(),
+            ),
             (route) => false,
           );
         }
       }
     } on AuthException catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message), backgroundColor: Colors.red,));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.message),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } on Exception catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ocurrió un error inesperado'), backgroundColor: Colors.red,));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ocurrió un error inesperado'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -75,8 +87,10 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Correo electrónico o nombre de usuario', 
-                  style: TextStyle(fontWeight: FontWeight.w500)),
+              const Text(
+                'Correo electrónico o nombre de usuario',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _emailController,
@@ -88,8 +102,10 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 24),
 
-              const Text('Contraseña', 
-                  style: TextStyle(fontWeight: FontWeight.w500)),
+              const Text(
+                'Contraseña',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _passwordController,
@@ -109,7 +125,9 @@ class _LoginPageState extends State<LoginPage> {
                     child: Checkbox(
                       value: _rememberMe,
                       activeColor: Theme.of(context).primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                       onChanged: (value) {
                         setState(() {
                           _rememberMe = value ?? false;
@@ -122,7 +140,13 @@ class _LoginPageState extends State<LoginPage> {
                   const Spacer(),
                   GestureDetector(
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Funcionalidad de recuperar contraseña pendiente')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Funcionalidad de recuperar contraseña pendiente',
+                          ),
+                        ),
+                      );
                     },
                     child: Text(
                       '¿Olvidaste tu contraseña?',
@@ -140,10 +164,14 @@ class _LoginPageState extends State<LoginPage> {
 
               ElevatedButton(
                 onPressed: _isLoading ? null : _signIn,
-                child: _isLoading 
+                child: _isLoading
                     ? const SizedBox(
-                        height: 20, width: 20, 
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
                       )
                     : const Text('Iniciar sesión'),
               ),
@@ -153,10 +181,17 @@ class _LoginPageState extends State<LoginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('¿No tienes una cuenta? ', style: TextStyle(color: Colors.grey)),
+                  const Text(
+                    '¿No tienes una cuenta? ',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                   GestureDetector(
                     onTap: () {
-                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ir a pantalla de registro')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Ir a pantalla de registro'),
+                        ),
+                      );
                     },
                     child: Text(
                       'Regístrate',
@@ -174,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-  
+
   @override
   void dispose() {
     _emailController.dispose();

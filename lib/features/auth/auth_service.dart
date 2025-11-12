@@ -27,7 +27,9 @@ Future<AuthResponse?> signUpUser({
       print('Sesión existente o flujo de confirmación iniciado.');
       return response;
     } else {
-      print('Registro iniciado, se requiere confirmación por correo electrónico.');
+      print(
+        'Registro iniciado, se requiere confirmación por correo electrónico.',
+      );
       return response;
     }
   } on AuthException catch (e) {
@@ -42,7 +44,8 @@ Future<AuthResponse?> signUpUser({
 Future<bool> resendConfirmationEmail({required String email}) async {
   try {
     await Supabase.instance.client.auth.resend(
-      type: OtpType.signup, // O AuthResponseType.emailChange si es para cambio de email
+      type: OtpType
+          .signup, // O AuthResponseType.emailChange si es para cambio de email
       email: email,
     );
     print('Correo de confirmación reenviado a $email');
