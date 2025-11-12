@@ -42,7 +42,8 @@ Future<AuthResponse?> signUpUser({
 Future<bool> resendConfirmationEmail({required String email}) async {
   try {
     await Supabase.instance.client.auth.resend(
-      type: OtpType.signup, // O AuthResponseType.emailChange si es para cambio de email
+      type: OtpType
+          .signup, // O AuthResponseType.emailChange si es para cambio de email
       email: email,
     );
     developer.log('Correo de confirmación reenviado a $email');

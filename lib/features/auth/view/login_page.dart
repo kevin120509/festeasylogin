@@ -32,18 +32,30 @@ class _LoginPageState extends State<LoginPage> {
       if (user != null) {
         if (mounted) {
           await Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute<dynamic>(builder: (context) => const ClientDashboard()),
+            MaterialPageRoute<dynamic>(
+              builder: (context) => const ClientDashboard(),
+            ),
             (route) => false,
           );
         }
       }
     } on AuthException catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message), backgroundColor: Colors.red,));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.message),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } on Exception catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ocurrió un error inesperado'), backgroundColor: Colors.red,));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ocurrió un error inesperado'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -82,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 40),
-              const Text('Correo electrónico o nombre de usuario', 
+              const Text('Correo electrónico o nombre de usuario',
                   style: TextStyle(fontWeight: FontWeight.w500)),
               const SizedBox(height: 8),
               TextFormField(
@@ -95,8 +107,10 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 24),
 
-              const Text('Contraseña', 
-                  style: TextStyle(fontWeight: FontWeight.w500)),
+              const Text(
+                'Contraseña',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _passwordController,
@@ -113,10 +127,14 @@ class _LoginPageState extends State<LoginPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                 ),
-                child: _isLoading 
+                child: _isLoading
                     ? const SizedBox(
-                        height: 20, width: 20, 
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
                       )
                     : const Text('Iniciar sesión'),
               ),
@@ -126,7 +144,10 @@ class _LoginPageState extends State<LoginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('¿No tienes una cuenta? ', style: TextStyle(color: Colors.grey)),
+                  const Text(
+                    '¿No tienes una cuenta? ',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                   GestureDetector(
                     onTap: () {
                        Navigator.push(
@@ -150,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-  
+
   @override
   void dispose() {
     _emailController.dispose();
