@@ -1,5 +1,5 @@
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
-import 'package:festeasy_app/features/auth/view/email_verification_page.dart'; // Importar EmailVerificationPage
+import 'package:festeasy_app/features/auth/view/email_verification_page.dart';
 import 'package:festeasy_app/features/auth/view/register_page.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +53,6 @@ class _ProviderLoginPageState extends State<ProviderLoginPage> {
     } on Exception catch (e, s) {
       debugPrint('Login error: $e, stack trace: $s');
       if (!mounted) return;
-      // The SnackBar is intentionally not awaited as it's a fire-and-forget UI notification.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred: $e')),
       );
@@ -130,7 +129,6 @@ class _ProviderLoginPageState extends State<ProviderLoginPage> {
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () async {
-                    // The push is intentionally not awaited as it's a fire-and-forget navigation.
                     await Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (context) => const RegisterPage(),

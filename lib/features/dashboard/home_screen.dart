@@ -135,11 +135,11 @@ class HomeScreen extends StatelessWidget {
 
 class EventCard extends StatelessWidget {
   const EventCard({
-    super.key,
     required this.fecha,
     required this.titulo,
     required this.lugar,
     required this.urlImagen,
+    super.key,
   });
 
   final String fecha;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +17,7 @@ class _ClientDashboardState extends State<ClientDashboard> {
   @override
   void initState() {
     super.initState();
-    _loadUserName();
+    unawaited(_loadUserName());
   }
 
   Future<void> _loadUserName() async {
@@ -37,6 +39,24 @@ class _ClientDashboardState extends State<ClientDashboard> {
       'assets/proveedores/show.png',
     ];
 
+    final recentQuotations = [
+      {
+        'title': 'Boda de Ensueño',
+        'provider': 'Eventos Premier',
+        'price': r'$5,000',
+      },
+      {
+        'title': 'Fiesta de 15 Años',
+        'provider': 'Decoraciones Mágicas',
+        'price': r'$2,500',
+      },
+      {
+        'title': 'Conferencia Corporativa',
+        'provider': 'Catering Express',
+        'price': r'$3,000',
+      },
+    ];
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -44,9 +64,12 @@ class _ClientDashboardState extends State<ClientDashboard> {
         actions: [
           IconButton(
             icon: const CircleAvatar(
-              child: Icon(Icons.person),
+              backgroundColor: Colors.red,
+              child: Icon(Icons.shopping_cart, color: Colors.white),
             ),
-            onPressed: () {},
+            onPressed: () async {
+              await Navigator.pushNamed(context, '/payment');
+            },
           ),
         ],
         backgroundColor: Colors.white,
@@ -113,11 +136,7 @@ class _ClientDashboardState extends State<ClientDashboard> {
                   itemCount: providerImages.length,
                   itemBuilder: (context, index) {
                     final imagePath = providerImages[index];
-                    final title = imagePath
-                        .split('/')
-                        .last
-                        .split('.')
-                        .first;
+                    final title = imagePath.split('/').last.split('.').first;
                     return Card(
                       margin: const EdgeInsets.only(right: 16),
                       child: SizedBox(
@@ -148,16 +167,35 @@ class _ClientDashboardState extends State<ClientDashboard> {
               ),
               const SizedBox(height: 16),
               SizedBox(
-                height: 100,
+                height: 150,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: 3,
+                  itemCount: recentQuotations.length,
                   itemBuilder: (context, index) {
-                    return const Card(
-                      margin: EdgeInsets.only(right: 16),
+                    final quotation = recentQuotations[index];
+                    return Card(
+                      margin: const EdgeInsets.only(right: 16),
                       child: SizedBox(
                         width: 200,
-                        child: Center(child: Text('Cotización')),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                quotation['title']!,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(quotation['provider']!),
+                              const Spacer(),
+                              Text(
+                                quotation['price']!,
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     );
                   },

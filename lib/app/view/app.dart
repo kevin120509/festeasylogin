@@ -1,13 +1,7 @@
-import 'dart:async'; // Added for StreamSubscription
-import 'package:flutter/services.dart'; // Added for PlatformException
-import 'package:uni_links/uni_links.dart'; // Added for uni_links
-import 'package:festeasy_app/core/theme/app_theme.dart';
-import 'package:festeasy_app/features/dashboard/home_screen.dart';
+import 'package:festeasy_app/features/auth/view/login_page.dart';
 import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
 import 'package:festeasy_app/features/payment/view/payment_page.dart';
-import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
-import 'package:festeasy_app/features/auth/view/login_page.dart';
 import 'package:festeasy_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 

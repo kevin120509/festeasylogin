@@ -1,7 +1,8 @@
 import 'dart:developer' as developer;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Registra un nuevo usuario con correo electrónico, contraseña, nombre de usuario,
+/// Registra un nuevo usuario con correo electrónico, contraseña,
+/// nombre de usuario,
 Future<AuthResponse?> signUpUser({
   required String email,
   required String password,
@@ -27,7 +28,9 @@ Future<AuthResponse?> signUpUser({
       developer.log('Sesión existente o flujo de confirmación iniciado.');
       return response;
     } else {
-      developer.log('Registro iniciado, se requiere confirmación por correo electrónico.');
+      developer.log(
+        'Registro iniciado, se requiere confirmación por correo electrónico.',
+      );
       return response;
     }
   } on AuthException catch (e) {

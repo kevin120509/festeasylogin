@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
-import 'package:festeasy_app/features/auth/view/email_verification_page.dart'; // Importar EmailVerificationPage
+import 'package:festeasy_app/features/auth/view/email_verification_page.dart';
 import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
 import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
@@ -22,7 +22,7 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
     _setupAuthListener();
-    Future.microtask(_handleInitialState);
+    unawaited(Future.microtask(_handleInitialState));
   }
 
   void _setupAuthListener() {
@@ -60,7 +60,6 @@ class _SplashPageState extends State<SplashPage> {
                 );
               }
             } else {
-              // If profile data is null, something went wrong or user is not fully registered
               if (!mounted) return;
               await Navigator.of(context).pushReplacement(
                 MaterialPageRoute<void>(
@@ -125,7 +124,6 @@ class _SplashPageState extends State<SplashPage> {
             );
           }
         } else {
-          // If profile data is null, something went wrong or user is not fully registered
           if (!mounted) return;
           await Navigator.of(context).pushReplacement(
             MaterialPageRoute<void>(

@@ -94,8 +94,10 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 40),
-              const Text('Correo electrónico o nombre de usuario',
-                  style: TextStyle(fontWeight: FontWeight.w500)),
+              const Text(
+                'Correo electrónico o nombre de usuario',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _emailController,
@@ -149,10 +151,12 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(color: Colors.grey),
                   ),
                   GestureDetector(
-                    onTap: () {
-                       Navigator.push(
+                    onTap: () async {
+                      await Navigator.push(
                         context,
-                        MaterialPageRoute<void>(builder: (context) => const RegisterPage()),
+                        MaterialPageRoute<void>(
+                          builder: (context) => const RegisterPage(),
+                        ),
                       );
                     },
                     child: const Text(

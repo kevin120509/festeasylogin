@@ -1,6 +1,8 @@
+// The following line is ignored because a more complex change is needed to
+// fix this.
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
-import 'package:festeasy_app/core/theme/app_theme.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class PaymentPage extends StatelessWidget {
   const PaymentPage({super.key});
@@ -14,7 +16,7 @@ class PaymentPage extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // TODO: Implement navigation
+            // TODO(user): Implement navigation
           },
         ),
         title: const Text('Payment'),
@@ -22,7 +24,7 @@ class PaymentPage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -66,32 +68,32 @@ class OrderSummaryCard extends StatelessWidget {
           const OrderSummaryItem(
             title: 'DJ Beats',
             category: 'DJ',
-            price: '\$250.00',
+            price: r'$250.00',
           ),
           const Divider(height: 1),
           const OrderSummaryItem(
             title: 'Catering Delights',
             category: 'Caterer',
-            price: '\$400.00',
+            price: r'$400.00',
           ),
           const Divider(height: 1),
           const OrderSummaryItem(
             title: 'Event Space',
             category: 'Venue',
-            price: '\$1500.00',
+            price: r'$1500.00',
           ),
           const Divider(height: 1),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                const TotalRow(label: 'Subtotal', amount: '\$2150.00'),
+                const TotalRow(label: 'Subtotal', amount: r'$2150.00'),
                 const SizedBox(height: 8),
-                const TotalRow(label: 'Taxes & Fees', amount: '\$150.00'),
+                const TotalRow(label: 'Taxes & Fees', amount: r'$150.00'),
                 const Divider(height: 24),
                 DefaultTextStyle(
                   style: Theme.of(context).textTheme.titleMedium!,
-                  child: const TotalRow(label: 'Total', amount: '\$2300.00'),
+                  child: const TotalRow(label: 'Total', amount: r'$2300.00'),
                 ),
               ],
             ),
@@ -117,7 +119,7 @@ class OrderSummaryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -182,7 +184,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
         const SizedBox(height: 12),
         PaymentMethodTile(
           title: 'PayPal',
-          imageAsset: 'assets/paypal_logo.png', // TODO: Add paypal logo
+          imageAsset: 'assets/paypal_logo.png', // TODO(user): Add paypal logo
           value: 1,
           groupValue: _selectedMethod,
           onChanged: (value) => setState(() => _selectedMethod = value!),
@@ -203,11 +205,11 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
 class PaymentMethodTile extends StatelessWidget {
   const PaymentMethodTile({
     required this.title,
-    this.icon,
-    this.imageAsset,
     required this.value,
     required this.groupValue,
     required this.onChanged,
+    this.icon,
+    this.imageAsset,
     super.key,
   });
 
@@ -220,46 +222,20 @@ class PaymentMethodTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = value == groupValue;
-    return GestureDetector(
-      onTap: () => onChanged(value),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.outline,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            if (icon != null)
-              Icon(icon, color: Theme.of(context).colorScheme.primary)
-            else if (imageAsset != null)
-              // TODO: Replace with actual image
-              Image.network(
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuCaxRy4dJFCtSAp0HLTNH-o089Xw8AWy902MnT316jLkGQV3eeLXP6N5YnarQ0kf4ml3OEb-nw2Fck5pQkpmCaVwhJNiTF4eM-genT_N3IuXX8Ze7oISeKtGl9Ol9rLpPpocdlEobIR_Enkgzkdw-zN5jFKgkjj9e7ZxgBAmSRDSRkp5DUgoGz5e8cYeL4XOP7loi8MNFFqDfm1mX-flG4J5I7PUDE49HwZvliyhGBRtgG-4-LxxXu1GY7q0HHnxgZ332jqeZaaBe0',
-                height: 24,
-                width: 24,
-              ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            Radio<int>(
-              value: value,
-              groupValue: groupValue,
-              onChanged: onChanged,
-            ),
-          ],
-        ),
-      ),
+    return RadioListTile<int>(
+      title: Text(title),
+      value: value,
+      groupValue: groupValue,
+      onChanged: onChanged,
+      secondary: icon != null
+          ? Icon(icon, color: Theme.of(context).colorScheme.primary)
+          : imageAsset != null
+              ? Image.network(
+                  'https://lh3.googleusercontent.com/aida-public/AB6AXuCaxRy4dJFCtSAp0HLTNH-o089Xw8AWy902MnT316jLkGQV3eeLXP6N5YnarQ0kf4ml3OEb-nw2Fck5pQkpmCaVwhJNiTF4eM-genT_N3IuXX8Ze7oISeKtGl9Ol9rLpPpocdlEobIR_Enkgzkdw-zN5jFKgkjj9e7ZxgBAmSRDSRkp5DUgoGz5e8cYeL4XOP7loi8MNFFqDfm1mX-flG4J5I7PUDE49HwZvliyhGBRtgG-4-LxxXu1GY7q0HHnxgZ332jqeZaaBe0',
+                  height: 24,
+                  width: 24,
+                )
+              : null,
     );
   }
 }
@@ -306,13 +282,13 @@ class PaymentFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomAppBar(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: ElevatedButton.icon(
           onPressed: () {
-            // TODO: Implement payment logic
+            // TODO(user): Implement payment logic
           },
           icon: const Icon(Icons.lock),
-          label: const Text('Pay Securely \$2300.00'),
+          label: const Text(r'Pay Securely $2300.00'),
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 50),
           ),
