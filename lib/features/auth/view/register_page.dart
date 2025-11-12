@@ -1,7 +1,7 @@
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
-import 'package:festeasy_app/features/auth/view/email_verification_page.dart'; // Importar EmailVerificationPage
+import 'package:festeasy_app/features/auth/view/email_verification_page.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; // Importar Supabase
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -35,7 +35,6 @@ class _RegisterPageState extends State<RegisterPage> {
         );
 
         if (user != null) {
-          // The SnackBar is intentionally not awaited as it's a fire-and-forget UI notification.
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -50,7 +49,6 @@ class _RegisterPageState extends State<RegisterPage> {
           );
         } else {
           if (!mounted) return;
-          // The SnackBar is intentionally not awaited as it's a fire-and-forget UI notification.
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('El registro falló.'),
@@ -60,19 +58,17 @@ class _RegisterPageState extends State<RegisterPage> {
       } on PostgrestException catch (e) {
         debugPrint('Registration error (PostgrestException): ${e.message}');
         if (!mounted) return;
-        // The SnackBar is intentionally not awaited as it's a fire-and-forget UI notification.
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'No se pudo crear el perfil. Verifica tus permisos en Supabase: '
-              '${e.message}',
+              'No se pudo crear el perfil. Verifica tus permisos en '
+              'Supabase: ${e.message}',
             ),
           ),
         );
       } on Exception catch (e, s) {
         debugPrint('Registration error: $e, stack trace: $s');
         if (!mounted) return;
-        // The SnackBar is intentionally not awaited as it's a fire-and-forget UI notification.
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Ocurrió un error: $e'),
@@ -203,7 +199,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ElevatedButton(
                   onPressed: _register,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6750A4), // Color primario
+                    backgroundColor: Colors.red, // Color primario
                     foregroundColor: Colors.white, // Texto blanco
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),

@@ -77,17 +77,14 @@ class AuthService {
 
     if (user != null) {
       try {
-        final List<Map<String, dynamic>>? profilesInsertResult = await _supabase
-            .from('profiles')
-            .insert({
-              'id': user.id,
-              'full_name': fullName,
-              'rol': rol,
-              'created_at': DateTime.now().toIso8601String(),
-            })
-            .select(); // Use .select() to get the inserted data
+        final profilesInsertResult = await _supabase.from('profiles').insert({
+          'id': user.id,
+          'full_name': fullName,
+          'rol': rol,
+          'created_at': DateTime.now().toIso8601String(),
+        }).select(); // Use .select() to get the inserted data
 
-        if (profilesInsertResult == null || profilesInsertResult.isEmpty) {
+        if (profilesInsertResult.isEmpty) {
           throw Exception('No se pudo crear el perfil del usuario.');
         }
 

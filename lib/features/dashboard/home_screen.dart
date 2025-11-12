@@ -1,7 +1,17 @@
+import 'package:festeasy_app/features/dashboard/view/provider_services_page.dart';
+import 'package:festeasy_app/core/local_storage.dart' as AppLocalStorage;
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _selectedFilter = 'Próximos';
 
   @override
   Widget build(BuildContext context) {
@@ -10,107 +20,217 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Festeasy',
-          style: TextStyle(color: Colors.black),
-        ),
+        title: const SizedBox.shrink(),
+        centerTitle: false,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
+          preferredSize: const Size.fromHeight(70),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Buscar eventos',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.grey[200],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      body: ListView(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
               children: [
-                ChoiceChip(
-                  label: const Text('Próximos'),
-                  selected: true,
-                  onSelected: (selected) {},
-                  backgroundColor: Colors.grey[200],
-                  selectedColor: Colors.red,
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Buscar eventos',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                ),
-                ChoiceChip(
-                  label: const Text('Pasados'),
-                  selected: false,
-                  onSelected: (selected) {},
-                  backgroundColor: Colors.grey[200],
-                  selectedColor: Colors.red,
-                ),
-                ChoiceChip(
-                  label: const Text('Todos'),
-                  selected: false,
-                  onSelected: (selected) {},
-                  backgroundColor: Colors.grey[200],
-                  selectedColor: Colors.red,
                 ),
               ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'Próximos',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: Column(
+        children: [
+          // Tabs de filtro
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                _FilterChip(
+                  label: 'Próximos',
+                  isSelected: _selectedFilter == 'Próximos',
+                  onSelected: () {
+                    setState(() => _selectedFilter = 'Próximos');
+                  },
+                ),
+                const SizedBox(width: 8),
+                _FilterChip(
+                  label: 'Pasados',
+                  isSelected: _selectedFilter == 'Pasados',
+                  onSelected: () {
+                    setState(() => _selectedFilter = 'Pasados');
+                  },
+                ),
+                const SizedBox(width: 8),
+                _FilterChip(
+                  label: 'Todos',
+                  isSelected: _selectedFilter == 'Todos',
+                  onSelected: () {
+                    setState(() => _selectedFilter = 'Todos');
+                  },
+                ),
+              ],
             ),
           ),
-          const EventCard(
-            fecha: '25 DIC, 2023',
-            titulo: 'Fiesta de Navidad',
-            lugar: 'Salón de eventos "El Roble"',
-            urlImagen: 'https://via.placeholder.com/100',
-          ),
-          const EventCard(
-            fecha: '31 DIC, 2023',
-            titulo: 'Celebración de Año Nuevo',
-            lugar: 'Hotel "La Rivera"',
-            urlImagen: 'https://via.placeholder.com/100',
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-            child: Text(
-              'Pasados',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          // Lista de eventos (reservas guardadas en JSON)
+          Expanded(
+            child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: AppLocalStorage.LocalStorage.getReservations(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final all = snapshot.data ?? [];
+                // Convert dates and filter
+                final now = DateTime.now();
+                final upcoming = <Map<String, dynamic>>[];
+                final past = <Map<String, dynamic>>[];
+                for (var r in all) {
+                  try {
+                    final dt = DateTime.parse(r['date'].toString());
+                    if (dt.isAfter(now)) {
+                      upcoming.add(r);
+                    } else {
+                      past.add(r);
+                    }
+                  } catch (_) {}
+                }
+
+                final List<Widget> children = [];
+                if (_selectedFilter == 'Próximos' ||
+                    _selectedFilter == 'Todos') {
+                  children.add(
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Text(
+                        'Próximos',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  );
+                  if (upcoming.isEmpty) {
+                    children.add(
+                      const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('No hay reservas próximas'),
+                      ),
+                    );
+                  } else {
+                    children.addAll(
+                      upcoming.map((r) {
+                        final dt = DateTime.parse(r['date'].toString());
+                        final fecha = DateFormat('d MMMM', 'es_ES').format(dt);
+                        return EventCard(
+                          fecha: fecha,
+                          titulo: r['title']?.toString() ?? '',
+                          lugar: r['description']?.toString() ?? '',
+                          urlImagen:
+                              'https://via.placeholder.com/120x120?text=Evento',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (context) =>
+                                    const ProviderServicesPage(),
+                              ),
+                            );
+                          },
+                        );
+                      }),
+                    );
+                  }
+                }
+
+                if (_selectedFilter == 'Pasados' ||
+                    _selectedFilter == 'Todos') {
+                  children.add(
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                      child: Text(
+                        'Pasados',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  );
+                  if (past.isEmpty) {
+                    children.add(
+                      const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('No hay reservas pasadas'),
+                      ),
+                    );
+                  } else {
+                    children.addAll(
+                      past.map((r) {
+                        final dt = DateTime.parse(r['date'].toString());
+                        final fecha = DateFormat('d MMMM', 'es_ES').format(dt);
+                        return EventCard(
+                          fecha: fecha,
+                          titulo: r['title']?.toString() ?? '',
+                          lugar: r['description']?.toString() ?? '',
+                          urlImagen:
+                              'https://via.placeholder.com/120x120?text=Evento',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (context) =>
+                                    const ProviderServicesPage(),
+                              ),
+                            );
+                          },
+                        );
+                      }),
+                    );
+                  }
+                }
+
+                children.add(const SizedBox(height: 20));
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: children,
+                  ),
+                );
+              },
             ),
-          ),
-          const EventCard(
-            fecha: '15 SEP, 2023',
-            titulo: 'Noche Mexicana',
-            lugar: 'Hacienda "El Centenario"',
-            urlImagen: 'https://via.placeholder.com/100',
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        backgroundColor: Colors.red,
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: const Color(0xFFEA4D4D),
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
-        currentIndex: 0,
-        selectedItemColor: Colors.red,
+        selectedItemColor: const Color(0xFFEA4D4D),
         unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -134,74 +254,130 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class EventCard extends StatelessWidget {
-  final String fecha;
-  final String titulo;
-  final String lugar;
-  final String urlImagen;
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.label,
+    required this.isSelected,
+    required this.onSelected,
+  });
 
+  final String label;
+  final bool isSelected;
+  final VoidCallback onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onSelected,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFEA4D4D) : Colors.grey[200],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class EventCard extends StatelessWidget {
   const EventCard({
-    super.key,
     required this.fecha,
     required this.titulo,
     required this.lugar,
     required this.urlImagen,
+    required this.onTap,
+    super.key,
   });
+
+  final String fecha;
+  final String titulo;
+  final String lugar;
+  final String urlImagen;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  fecha,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 8.0),
-                Text(
-                  titulo,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.0,
-                  ),
-                ),
-                const SizedBox(height: 8.0),
-                Text(
-                  lugar,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[300]!, width: 1),
+        ),
+        child: Row(
+          children: [
+            // Imagen
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                bottomLeft: Radius.circular(12),
+              ),
+              child: Image.network(
+                urlImagen,
+                width: 100,
+                height: 110,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: 100,
+                    height: 110,
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.image, color: Colors.grey),
+                  );
+                },
+              ),
             ),
-          ),
-          const SizedBox(width: 16.0),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10.0),
-            child: Image.network(
-              urlImagen,
-              width: 100,
-              height: 100,
-              fit: BoxFit.cover,
+            // Contenido
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      fecha,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      titulo,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      lugar,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 13,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

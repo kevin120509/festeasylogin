@@ -1,120 +1,388 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-class ClientDashboard extends StatelessWidget {
+import 'package:festeasy_app/features/auth/services/auth_service.dart';
+import 'package:festeasy_app/core/local_storage.dart' as AppLocalStorage;
+import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class ClientDashboard extends StatefulWidget {
   const ClientDashboard({super.key});
+
+  @override
+  State<ClientDashboard> createState() => _ClientDashboardState();
+}
+
+class _ClientDashboardState extends State<ClientDashboard> {
+  final AuthService _authService = AuthService();
+  String? _userName;
+  int _selectedTabIndex = 0;
+  final TextEditingController _eventDescriptionController =
+      TextEditingController();
+  final TextEditingController _eventTitleController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_loadUserName());
+  }
+
+  @override
+  void dispose() {
+    _eventDescriptionController.dispose();
+    _eventTitleController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitRequest() async {
+    final title = _eventTitleController.text.trim();
+    final description = _eventDescriptionController.text.trim();
+    if (title.isEmpty || description.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Por favor completa título y descripción'),
+          ),
+        );
+      }
+      return;
+    }
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final request = {
+      'id': id,
+      'title': title,
+      'description': description,
+      'status': 'pending',
+      'createdAt': DateTime.now().toIso8601String(),
+    };
+    try {
+      await AppLocalStorage.LocalStorage.addRequest(request);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Solicitud enviada')));
+        _eventTitleController.clear();
+        _eventDescriptionController.clear();
+      }
+    } catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al guardar la solicitud')),
+        );
+    }
+  }
+
+  Future<void> _loadUserName() async {
+    final profileData = await _authService.getProfileData();
+    if (profileData != null) {
+      setState(() {
+        _userName = profileData['full_name'] as String?;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Hola, [nombre] 👋'),
+        title: _selectedTabIndex == 0
+            ? Text('Hola, ${_userName ?? ''} 👋')
+            : _selectedTabIndex == 1
+            ? const Text('Perfil')
+            : const Text('Ajustes'),
         actions: [
-          IconButton(
-            icon: const CircleAvatar(
-              child: Icon(Icons.person),
+          if (_selectedTabIndex == 0)
+            IconButton(
+              icon: const CircleAvatar(
+                backgroundColor: Colors.red,
+                child: Icon(Icons.shopping_cart, color: Colors.white),
+              ),
+              onPressed: () async {
+                await Navigator.pushNamed(context, '/payment');
+              },
             ),
-            onPressed: () {},
-          ),
         ],
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const TextField(
-                decoration: InputDecoration(
-                  hintText: 'Buscar servicios para mi evento',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const TextField(
-                decoration: InputDecoration(
-                  hintText: 'Describe tu evento',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6750A4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Center(
-                  child: Text(
-                    'Generar sugerencias',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Proveedores recomendados',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    return const Card(
-                      margin: EdgeInsets.only(right: 16),
-                      child: SizedBox(
-                        width: 150,
-                        child: Center(child: Text('Proveedor')),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Cotizaciones recientes',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 3,
-                  itemBuilder: (context, index) {
-                    return const Card(
-                      margin: EdgeInsets.only(right: 16),
-                      child: SizedBox(
-                        width: 200,
-                        child: Center(child: Text('Cotización')),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+      body: _buildTabContent(),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedTabIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedTabIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Inicio',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Perfil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Ajustes',
+          ),
+        ],
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFFEA4D4D),
+        unselectedItemColor: Colors.grey,
+      ),
+    );
+  }
+
+  Widget _buildTabContent() {
+    switch (_selectedTabIndex) {
+      case 0:
+        return _buildInitioTab();
+      case 1:
+        return _buildPerfilTab();
+      case 2:
+        return _buildAjustesTab();
+      default:
+        return _buildInitioTab();
+    }
+  }
+
+  Widget _buildInitioTab() {
+    final providerImages = [
+      'assets/proveedores/alimentos y catering.png',
+      'assets/proveedores/decoracion de eventos.png',
+      'assets/proveedores/fotografia y evento.png',
+      'assets/proveedores/musicaDJ.png',
+      'assets/proveedores/show.png',
+    ];
+
+    final recentQuotations = [
+      {
+        'title': 'Boda de Ensueño',
+        'provider': 'Eventos Premier',
+        'price': r'$5,000',
+      },
+      {
+        'title': 'Fiesta de 15 Años',
+        'provider': 'Decoraciones Mágicas',
+        'price': r'$2,500',
+      },
+      {
+        'title': 'Conferencia Corporativa',
+        'provider': 'Catering Express',
+        'price': r'$3,000',
+      },
+    ];
+
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const TextField(
+              decoration: InputDecoration(
+                hintText: 'Buscar servicios para mi evento',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _eventDescriptionController,
+              decoration: const InputDecoration(
+                hintText: 'Describe tu evento',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _eventTitleController,
+              decoration: const InputDecoration(
+                hintText: 'Título del evento',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _submitRequest,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEA4D4D),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Center(
+                child: Text(
+                  'Enviar solicitud al proveedor',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Proveedores recomendados',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 150,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: providerImages.length,
+                itemBuilder: (context, index) {
+                  final imagePath = providerImages[index];
+                  final title = imagePath.split('/').last.split('.').first;
+                  return Card(
+                    margin: const EdgeInsets.only(right: 16),
+                    child: SizedBox(
+                      width: 150,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Image.asset(
+                              imagePath,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(title),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Cotizaciones recientes',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 150,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: recentQuotations.length,
+                itemBuilder: (context, index) {
+                  final quotation = recentQuotations[index];
+                  return Card(
+                    margin: const EdgeInsets.only(right: 16),
+                    child: SizedBox(
+                      width: 200,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              quotation['title']!,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(quotation['provider']!),
+                            const Spacer(),
+                            Text(
+                              quotation['price']!,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPerfilTab() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.person, size: 80, color: Colors.grey),
+            const SizedBox(height: 16),
+            const Text('Perfil del Cliente'),
+            const SizedBox(height: 8),
+            Text(
+              'Aquí irá la información de tu perfil',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await Supabase.instance.client.auth.signOut();
+                } catch (_) {}
+                if (!mounted) return;
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute<void>(builder: (_) => const WelcomePage()),
+                  (route) => false,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEA4D4D),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: 24,
+                ),
+              ),
+              child: const Text(
+                'Cerrar sesión',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAjustesTab() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.settings, size: 80, color: Colors.grey),
+          const SizedBox(height: 16),
+          const Text('Ajustes'),
+          const SizedBox(height: 8),
+          Text(
+            'Aquí irán tus configuraciones',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
       ),
     );
   }

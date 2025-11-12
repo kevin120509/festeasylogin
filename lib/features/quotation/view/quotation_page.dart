@@ -13,12 +13,9 @@ class _QuotationPageState extends State<QuotationPage> {
   final _dateController = TextEditingController();
   final _messageController = TextEditingController();
 
-  void _submitQuotation() {
-    // TODO(user): Implement submitQuotation logic
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Cotización enviada')),
-    );
-  }
+  void _submitQuotation() => ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Cotización enviada')),
+  );
 
   @override
   Widget build(BuildContext context) {

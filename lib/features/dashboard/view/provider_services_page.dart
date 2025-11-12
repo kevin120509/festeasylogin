@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use, lines_longer_than_80_chars, always_put_required_named_parameters_first, use_super_parameters, document_ignores
 
+import 'package:festeasy_app/features/dashboard/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -107,19 +108,14 @@ class PrimaryButton extends StatelessWidget {
 
 // --- Página Principal ---
 
-class EventDetailPage extends StatelessWidget {
-  const EventDetailPage({super.key});
+class ProviderServicesPage extends StatelessWidget {
+  const ProviderServicesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Detectar si el tema es oscuro para aplicar los colores correctos
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      // Aplicamos el color de fondo para el tema actual
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
+      // Fondo blanco
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           // 1. Contenido principal desplazable
@@ -154,8 +150,7 @@ class EventDetailPage extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 30, // text-3xl
                               fontWeight: FontWeight.bold,
-                              color: Colors
-                                  .white, // El texto sigue siendo blanco para contraste
+                              color: AppColors.primary, // Rojo
                               fontFamily: 'Spline Sans',
                             ),
                           ),
@@ -163,7 +158,7 @@ class EventDetailPage extends StatelessWidget {
                           const Text(
                             'Organizado por Sofia Ramirez',
                             style: TextStyle(
-                              color: Colors.white70, // text-white/70
+                              color: Colors.grey, // Gris para contraste
                             ),
                           ),
                           const SizedBox(height: 24), // mt-6
@@ -192,7 +187,7 @@ class EventDetailPage extends StatelessWidget {
                           const Text(
                             'Una noche inolvidable en la playa con música en vivo, DJ, comida y bebidas. ¡No te lo pierdas!',
                             style: TextStyle(
-                              color: Colors.white70, // text-white/90
+                              color: Colors.black87, // Texto oscuro
                             ),
                           ),
 
@@ -203,12 +198,11 @@ class EventDetailPage extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 24, // text-2xl
                               fontWeight: FontWeight.bold,
-                              color: Colors
-                                  .white, // El texto sigue siendo blanco para contraste
+                              color: AppColors.primary, // Rojo
                             ),
                           ),
                           const SizedBox(height: 16), // mt-4
-                          _AttendeesRow(isDark: isDark),
+                          const _AttendeesRow(),
                           const SizedBox(height: 160),
                         ],
                       ),
@@ -219,25 +213,25 @@ class EventDetailPage extends StatelessWidget {
             ],
           ),
 
-          // 2. Header fijo con efecto 'liquid-glass'
+          // 2. Header fijo blanco con rojo
           Positioned(
             top: 0,
             left: 0,
             right: 0,
-            child: LiquidGlassContainer(
-              isDark: isDark,
+            child: Container(
+              color: Colors.white,
               child: _EventHeader(),
             ),
           ),
 
-          // 3. Footer Fijo con efecto 'liquid-glass'
+          // 3. Footer Fijo blanco con rojo
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: LiquidGlassContainer(
-              isDark: isDark,
-              child: _EventFooter(isDark: isDark),
+            child: Container(
+              color: Colors.white,
+              child: _EventFooter(),
             ),
           ),
         ],
@@ -262,7 +256,7 @@ class _EventDetailItem extends StatelessWidget {
           colorFilter: const ColorFilter.mode(
             AppColors.primary,
             BlendMode.srcIn,
-          ), // Usa el nuevo rojo
+          ), // Rojo
           height: 24,
           width: 24,
         ),
@@ -270,8 +264,8 @@ class _EventDetailItem extends StatelessWidget {
         Text(
           text,
           style: const TextStyle(
-            color: Colors.white,
-          ), // Texto blanco para contraste
+            color: Colors.black87, // Texto oscuro
+          ),
         ),
       ],
     );
@@ -279,8 +273,7 @@ class _EventDetailItem extends StatelessWidget {
 }
 
 class _AttendeesRow extends StatelessWidget {
-  const _AttendeesRow({required this.isDark});
-  final bool isDark;
+  const _AttendeesRow();
 
   @override
   Widget build(BuildContext context) {
@@ -291,10 +284,8 @@ class _AttendeesRow extends StatelessWidget {
       'https://lh3.googleusercontent.com/aida-public/AB6AXuAJBl0APD1f8xXjKCSQHWbSbC2qx0VNP00qWcE0N9V1SFA6czkrirkt9RAVtfZx26M8wbATsGD5BARniP_iYPecvaMJj1uQeHt3p6fkUEUTOv0n5dzLKWEeD15KKnZLqHwQV8MI62TAvfFhABFMOXhzk74rstCW5_FZprYCwXNjoRjkfWpkOdNOathjzMq8tuQufQt1UNcUxf3BVgEA3YmGftnM6mFCoCtgibUojY2bKMM_dFGCwsXvGPAUymqT53WYLFZ_Fpdr0II',
     ];
 
-    // Borde de color oscuro si es tema claro, o color claro si es tema oscuro
-    final borderColor = isDark
-        ? AppColors.backgroundDark
-        : AppColors.backgroundLight;
+    // Borde blanco
+    const borderColor = Colors.white;
 
     return Row(
       children: [
@@ -334,7 +325,7 @@ class _AttendeesRow extends StatelessWidget {
               ),
               color: AppColors.primary.withOpacity(
                 0.2,
-              ), // Usa el nuevo rojo con opacidad
+              ), // Rojo con opacidad
             ),
             child: const Center(
               child: Text(
@@ -357,16 +348,17 @@ class _EventHeader extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: Container(
+        color: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         child: Row(
           children: [
             // Botón de Volver
             IconButton(
-              onPressed: () {},
+              onPressed: () => Navigator.pop(context),
               icon: SvgPicture.asset(
                 'assets/arrow_left.svg',
                 colorFilter: const ColorFilter.mode(
-                  Colors.white,
+                  AppColors.primary, // Rojo
                   BlendMode.srcIn,
                 ),
                 height: 24,
@@ -386,7 +378,7 @@ class _EventHeader extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18, // text-lg
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, // Texto blanco para contraste
+                    color: AppColors.primary, // Rojo
                   ),
                 ),
               ),
@@ -399,8 +391,7 @@ class _EventHeader extends StatelessWidget {
 }
 
 class _EventFooter extends StatelessWidget {
-  const _EventFooter({required this.isDark});
-  final bool isDark;
+  const _EventFooter();
 
   @override
   Widget build(BuildContext context) {
@@ -420,31 +411,61 @@ class _EventFooter extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 height: 48,
-                child: ElevatedButton(
-                  onPressed: () {},
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    // Navegar a HomeScreen (Mis Eventos)
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute<void>(
+                        builder: (context) => const HomeScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.calendar_today),
+                  label: const Text('Mis Eventos'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark
-                        ? AppColors.primary.withOpacity(
-                            0.3,
-                          ) // Nuevo rojo con opacidad
-                        : AppColors.primary.withOpacity(
-                            0.2,
-                          ), // Nuevo rojo con opacidad
+                    backgroundColor: AppColors.primary.withOpacity(0.1),
+                    foregroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12), // rounded-xl
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     elevation: 0,
-                  ),
-                  child: const Text(
-                    'Compartir',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
                   ),
                 ),
               ),
             ],
+          ),
+        ),
+
+        // Navegación Inferior
+        const SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _BottomNavItem(
+                  iconPath: 'assets/home.svg',
+                  label: 'Inicio',
+                  isActive: false,
+                ),
+                _BottomNavItem(
+                  iconPath: 'assets/calendar_bottom.svg',
+                  label: 'Eventos',
+                  isActive: true,
+                ),
+                _BottomNavItem(
+                  iconPath: 'assets/profile.svg',
+                  label: 'Perfil',
+                  isActive: false,
+                ),
+                _BottomNavItem(
+                  iconPath: 'assets/settings.svg',
+                  label: 'Ajustes',
+                  isActive: false,
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -466,7 +487,7 @@ class _BottomNavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isActive
         ? AppColors.primary
-        : Colors.white70; // Usa el nuevo rojo
+        : Colors.grey; // Gris si no está activo
     final fontWeight = isActive ? FontWeight.bold : FontWeight.normal;
 
     return InkWell(
@@ -494,44 +515,6 @@ class _BottomNavItem extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Festeasy',
-      theme: ThemeData(
-        brightness: Brightness.light, // Tema claro por defecto
-        fontFamily: 'Spline Sans',
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-        ), // Usa el color primario como semilla
-        scaffoldBackgroundColor: AppColors.backgroundLight,
-        textTheme: Theme.of(context).textTheme.apply(
-          bodyColor: Colors.black87, // Color de texto para el tema claro
-          displayColor: Colors.black,
-        ),
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark, // Tema oscuro
-        fontFamily: 'Spline Sans',
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          brightness: Brightness.dark,
-        ),
-        scaffoldBackgroundColor: AppColors.backgroundDark,
-        textTheme: Theme.of(context).textTheme.apply(
-          bodyColor: Colors.white70, // Color de texto para el tema oscuro
-          displayColor: Colors.white,
-        ),
-      ),
-      home: const EventDetailPage(),
     );
   }
 }

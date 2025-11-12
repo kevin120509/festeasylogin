@@ -50,10 +50,11 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
   Future<void> _checkEmailVerification() async {
     // Reload user session to get updated email_confirmed_at status
     await _authService.reloadUser();
+    if (!mounted) return; // Added this check
     if (_authService.isEmailVerified()) {
-      if (!mounted) return;
       // Navigate to appropriate dashboard based on user role
       final profileData = await _authService.getProfileData();
+      if (!mounted) return; // Added this check
       if (profileData != null) {
         final rol = profileData['rol'];
         if (rol == 'cliente' || rol == 'usuario') {
@@ -70,7 +71,6 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
           );
         }
       } else {
-        // If profile data is null, something went wrong or user is not fully registered
         await Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(builder: (context) => const WelcomePage()),
         );
@@ -105,7 +105,9 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
               ),
               const SizedBox(height: 20),
               const Text(
-                'Se ha enviado un correo de verificación a tu dirección de correo electrónico. Por favor, verifica tu bandeja de entrada (y la carpeta de spam) para activar tu cuenta.',
+                'Se ha enviado un correo de verificación a tu dirección de '
+                'correo electrónico. Por favor, verifica tu bandeja de '
+                'entrada (y la carpeta de spam) para activar tu cuenta.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16),
               ),
@@ -138,9 +140,10 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () async {
+                  final navigator = Navigator.of(context);
                   await _supabase.auth.signOut();
                   if (!mounted) return;
-                  await Navigator.of(context).pushAndRemoveUntil(
+                  await navigator.pushAndRemoveUntil(
                     MaterialPageRoute<void>(
                       builder: (context) => const WelcomePage(),
                     ),
