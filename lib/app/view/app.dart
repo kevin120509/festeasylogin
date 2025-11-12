@@ -1,14 +1,7 @@
-<<<<<<< HEAD
-import 'dart:async'; // Added for StreamSubscription
-import 'package:flutter/services.dart'; // Added for PlatformException
-import 'package:uni_links/uni_links.dart'; // Added for uni_links
-import 'package:festeasy_app/core/theme/app_theme.dart';
+import 'package:festeasy_app/features/auth/view/login_page.dart'; // Importación unificada
 import 'package:festeasy_app/features/dashboard/home_screen.dart';
 import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
-=======
-import 'package:festeasy_app/features/auth/view/login_page.dart';
->>>>>>> 25ed4c27e52ec49a68cc98b89f1868e1e0621859
 import 'package:festeasy_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +13,7 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
+  // Aquí podrías agregar lógica para uni_links si la usas
   @override
   void initState() {
     super.initState();
@@ -33,7 +27,11 @@ class _AppState extends State<App> {
           backgroundColor: Colors.white,
           elevation: 0,
           iconTheme: IconThemeData(color: Colors.black),
-          titleTextStyle: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+          titleTextStyle: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
@@ -58,15 +56,16 @@ class _AppState extends State<App> {
       ),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-<<<<<<< HEAD
-      home: const HomeScreen(),
+
+      // SOLO UNA VEZ: Usamos LoginPage como pantalla inicial
+      home: const LoginPage(),
+
+      // Definimos las rutas nombradas que se usan después del login
       routes: {
+        '/home': (context) => const HomeScreen(),
         '/provider_dashboard': (context) => const ProviderDashboard(),
         '/client_dashboard': (context) => const ClientDashboard(),
       },
-=======
-      home: const LoginPage(),
->>>>>>> 25ed4c27e52ec49a68cc98b89f1868e1e0621859
     );
   }
 }

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -47,8 +46,8 @@ class HomeScreen extends StatelessWidget {
                   onSelected: (selected) {},
                   backgroundColor: Colors.grey[200],
                   selectedColor: Colors.red,
-                  labelStyle: TextStyle(
-                    color: true ? Colors.white : Colors.black,
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
                   ),
                 ),
                 ChoiceChip(
