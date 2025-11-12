@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
+import 'package:festeasy_app/features/dashboard/view/provider_detail_screen.dart';
 import 'package:flutter/material.dart';
 
 class ClientDashboard extends StatefulWidget {
@@ -31,12 +32,58 @@ class _ClientDashboardState extends State<ClientDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final providerImages = [
-      'assets/proveedores/alimentos y catering.png',
-      'assets/proveedores/decoracion de eventos.png',
-      'assets/proveedores/fotografia y evento.png',
-      'assets/proveedores/musicaDJ.png',
-      'assets/proveedores/show.png',
+    // Dummy data for recommended providers to match the new Proveedor model
+    final listaProveedores = [
+      Proveedor(
+        name: 'Alimentos y Catering',
+        imageUrl: 'https://picsum.photos/seed/food/300/200',
+        description:
+            'Ofrecemos los mejores platillos para tu evento. Menús personalizados y servicio de catering completo.',
+       services: ['Buffet', 'Taquizas', 'Box Lunch', 'Barra de bebidas'],
+        contact: {
+          'phone': '55-1234-5678',
+          'email': 'contacto@cateringdelicioso.com',
+          'website': 'cateringdelicioso.com',
+        },
+        galleryImages: [
+          'https://picsum.photos/seed/food_gallery1/300/200',
+          'https://picsum.photos/seed/food_gallery2/300/200',
+          'https://picsum.photos/seed/food_gallery3/300/200',
+        ],
+      ),
+      Proveedor(
+        name: 'Decoración de Eventos',
+        imageUrl: 'https://picsum.photos/seed/decor/300/200',
+        description:
+            'Transformamos cualquier espacio en el escenario de tus sueños. Decoración floral, globos, y más.',
+        services: [
+          'Arreglos florales',
+          'Decoración con globos',
+          'Centros de mesa'
+        ],
+        contact: {
+          'phone': '55-8765-4321',
+          'email': 'info@decorarte.com',
+          'website': 'decorarte.com',
+        },
+        galleryImages: [
+          'https://picsum.photos/seed/decor_gallery1/300/200',
+          'https://picsum.photos/seed/decor_gallery2/300/200',
+        ],
+      ),
+      Proveedor(
+        name: 'Fotografía y Evento',
+        imageUrl: 'https://picsum.photos/seed/photo/300/200',
+        description:
+            'Capturamos los momentos más especiales de tu vida. Cobertura completa de tu evento.',
+        services: ['Sesión de fotos', 'Video filmación', 'Photobooth'],
+        contact: {
+          'phone': '55-5555-5555',
+          'email': 'captura@momentos.com',
+          'website': 'momentosunicos.com',
+        },
+        galleryImages: [],
+      ),
     ];
 
     final recentQuotations = [
@@ -133,27 +180,49 @@ class _ClientDashboardState extends State<ClientDashboard> {
                 height: 150,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: providerImages.length,
+                  itemCount: listaProveedores.length,
                   itemBuilder: (context, index) {
-                    final imagePath = providerImages[index];
-                    final title = imagePath.split('/').last.split('.').first;
-                    return Card(
-                      margin: const EdgeInsets.only(right: 16),
-                      child: SizedBox(
-                        width: 150,
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Image.asset(
-                                imagePath,
-                                fit: BoxFit.cover,
+                    final proveedor = listaProveedores[index];
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ProviderDetailScreen(proveedor: proveedor),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        clipBehavior: Clip.antiAlias,
+                        margin: const EdgeInsets.only(right: 16),
+                        child: SizedBox(
+                          width: 150,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Image.network(
+                                  proveedor.imageUrl,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Center(
+                                    child: Icon(Icons.broken_image),
+                                  ),
+                                ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Text(title),
-                            ),
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Text(
+                                  proveedor.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
