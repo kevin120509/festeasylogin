@@ -1,7 +1,7 @@
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
-import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
 import 'package:festeasy_app/features/auth/view/email_verification_page.dart'; // Importar EmailVerificationPage
 import 'package:festeasy_app/features/auth/view/register_page.dart';
+import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
 import 'package:flutter/material.dart';
 
 class ClientLoginPage extends StatefulWidget {
@@ -55,7 +55,7 @@ class _ClientLoginPageState extends State<ClientLoginPage> {
       if (!mounted) return;
       // The SnackBar is intentionally not awaited as it's a fire-and-forget UI notification.
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred: ${e.toString()}')),
+        SnackBar(content: Text('An error occurred: $e')),
       );
     } finally {
       if (mounted) {

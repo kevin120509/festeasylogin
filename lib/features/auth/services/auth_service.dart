@@ -20,24 +20,32 @@ class AuthService {
     }
 
     // Ahora buscamos su perfil asociado
-    final profile = await _supabase
-        .from('profiles')
-        .select('rol, full_name')
-        .eq('id', user.id)
-        .maybeSingle();
+    try {
+      final profile = await _supabase
+          .from('profiles')
+          .select('rol, full_name')
+          .eq('id', user.id)
+          .maybeSingle();
 
-    // Si no hay perfil asociado
-    if (profile == null) {
-      throw Exception('No se encontró el perfil del usuario.');
+      // Si no hay perfil asociado
+      if (profile == null) {
+        throw Exception('No se encontró el perfil del usuario.');
+      }
+
+      final rol = profile['rol'];
+      debugPrint('Rol detectado: $rol');
+
+      return {
+        'user': user,
+        'rol': rol,
+      };
+    } on PostgrestException catch (e) {
+      debugPrint('PostgrestException during profile fetch: ${e.message}');
+      rethrow;
+    } catch (e, s) {
+      debugPrint('Unexpected error during profile fetch: $e, stack: $s');
+      rethrow;
     }
-
-    final rol = profile['rol'];
-    debugPrint('Rol detectado: $rol');
-
-    return {
-      'user': user,
-      'rol': rol,
-    };
   }
 
   Future<void> sendMagicLink(String email) async {
@@ -68,26 +76,39 @@ class AuthService {
     final user = response.user;
 
     if (user != null) {
-      await _supabase.from('profiles').insert({
-        'id': user.id,
-        'full_name': fullName,
-        'rol': rol,
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      try {
+        final List<Map<String, dynamic>>? profilesInsertResult =
+            await _supabase.from('profiles').insert({
+          'id': user.id,
+          'full_name': fullName,
+          'rol': rol,
+          'created_at': DateTime.now().toIso8601String(),
+        }).select(); // Use .select() to get the inserted data
 
-      // Insert into specific role table
-      if (rol == 'cliente') {
-        await _supabase.from('clientes').insert({
-          'user_id': user.id,
-          'full_name': fullName,
-          'created_at': DateTime.now().toIso8601String(),
-        });
-      } else if (rol == 'proveedor') {
-        await _supabase.from('proveedores').insert({
-          'user_id': user.id,
-          'full_name': fullName,
-          'created_at': DateTime.now().toIso8601String(),
-        });
+        if (profilesInsertResult == null || profilesInsertResult.isEmpty) {
+          throw Exception('No se pudo crear el perfil del usuario.');
+        }
+
+        // Insert into specific role table
+        if (rol == 'cliente') {
+          await _supabase.from('clientes').insert({
+            'user_id': user.id,
+            'full_name': fullName,
+            'created_at': DateTime.now().toIso8601String(),
+          });
+        } else if (rol == 'proveedor') {
+          await _supabase.from('proveedores').insert({
+            'user_id': user.id,
+            'full_name': fullName,
+            'created_at': DateTime.now().toIso8601String(),
+          });
+        }
+      } on PostgrestException catch (e) {
+        debugPrint('PostgrestException during sign up: ${e.message}');
+        rethrow;
+      } catch (e, s) {
+        debugPrint('Unexpected error during sign up: $e, stack: $s');
+        rethrow;
       }
     }
     return user;
