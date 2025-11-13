@@ -136,13 +136,16 @@ ${_services.map((s) => '- ${s['name']} de ${s['start_time']} a ${s['end_time']}'
         'status': 'pending',
       };
 
+      final navigator = Navigator.of(context);
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
+
       await app_local_storage.LocalStorage.addRequest(eventData);
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Su solicitud se envió')),
       );
-      Navigator.of(context).pop();
+      navigator.pop();
     }
   }
 

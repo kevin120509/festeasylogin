@@ -111,6 +111,9 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 final all = snapshot.data ?? [];
+                // TODO(you): remove this print statement when you are done debugging
+                // ignore: avoid_print
+                print('Requests retrieved: $all');
                 final pending = all
                     .where((e) => (e['status']?.toString() ?? '') == 'pending')
                     .toList();
@@ -153,14 +156,14 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                               alignment: Alignment.centerRight,
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  final res = await Navigator.of(context)
-                                      .push<bool?>(
-                                        MaterialPageRoute(
-                                          builder: (_) => ProviderRequestReview(
-                                            request: req,
-                                          ),
-                                        ),
-                                      );
+                                  final res =
+                                      await Navigator.of(context).push<bool?>(
+                                    MaterialPageRoute(
+                                      builder: (_) => ProviderRequestReview(
+                                        request: req,
+                                      ),
+                                    ),
+                                  );
                                   if (res ?? false) setState(() {});
                                 },
                                 style: ElevatedButton.styleFrom(
