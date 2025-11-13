@@ -230,12 +230,12 @@ class PaymentMethodTile extends StatelessWidget {
       secondary: icon != null
           ? Icon(icon, color: Theme.of(context).colorScheme.primary)
           : imageAsset != null
-              ? Image.network(
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuCaxRy4dJFCtSAp0HLTNH-o089Xw8AWy902MnT316jLkGQV3eeLXP6N5YnarQ0kf4ml3OEb-nw2Fck5pQkpmCaVwhJNiTF4eM-genT_N3IuXX8Ze7oISeKtGl9Ol9rLpPpocdlEobIR_Enkgzkdw-zN5jFKgkjj9e7ZxgBAmSRDSRkp5DUgoGz5e8cYeL4XOP7loi8MNFFqDfm1mX-flG4J5I7PUDE49HwZvliyhGBRtgG-4-LxxXu1GY7q0HHnxgZ332jqeZaaBe0',
-                  height: 24,
-                  width: 24,
-                )
-              : null,
+          ? Image.network(
+              'https://lh3.googleusercontent.com/aida-public/AB6AXuCaxRy4dJFCtSAp0HLTNH-o089Xw8AWy902MnT316jLkGQV3eeLXP6N5YnarQ0kf4ml3OEb-nw2Fck5pQkpmCaVwhJNiTF4eM-genT_N3IuXX8Ze7oISeKtGl9Ol9rLpPpocdlEobIR_Enkgzkdw-zN5jFKgkjj9e7ZxgBAmSRDSRkp5DUgoGz5e8cYeL4XOP7loi8MNFFqDfm1mX-flG4J5I7PUDE49HwZvliyhGBRtgG-4-LxxXu1GY7q0HHnxgZ332jqeZaaBe0',
+              height: 24,
+              width: 24,
+            )
+          : null,
     );
   }
 }

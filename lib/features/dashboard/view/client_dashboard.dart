@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ClientDashboard extends StatefulWidget {
   const ClientDashboard({super.key});
@@ -14,7 +13,6 @@ class ClientDashboard extends StatefulWidget {
 class _ClientDashboardState extends State<ClientDashboard> {
   final AuthService _authService = AuthService();
   String? _userName;
-  int _selectedTabIndex = 0;
   final TextEditingController _eventDescriptionController =
       TextEditingController();
   final TextEditingController _eventTitleController = TextEditingController();
@@ -30,44 +28,6 @@ class _ClientDashboardState extends State<ClientDashboard> {
     _eventDescriptionController.dispose();
     _eventTitleController.dispose();
     super.dispose();
-  }
-
-  Future<void> _submitRequest() async {
-    final title = _eventTitleController.text.trim();
-    final description = _eventDescriptionController.text.trim();
-    if (title.isEmpty || description.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Por favor completa título y descripción'),
-          ),
-        );
-      }
-      return;
-    }
-    final id = DateTime.now().millisecondsSinceEpoch.toString();
-    final request = {
-      'id': id,
-      'title': title,
-      'description': description,
-      'status': 'pending',
-      'createdAt': DateTime.now().toIso8601String(),
-    };
-    try {
-      await AppLocalStorage.LocalStorage.addRequest(request);
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Solicitud enviada')));
-        _eventTitleController.clear();
-        _eventDescriptionController.clear();
-      }
-    } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al guardar la solicitud')),
-        );
-    }
   }
 
   Future<void> _loadUserName() async {

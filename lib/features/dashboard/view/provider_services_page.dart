@@ -139,13 +139,13 @@ class ProviderServicesPage extends StatelessWidget {
                       ),
                     ),
                     // Detalles del evento
-                    Padding(
-                      padding: const EdgeInsets.all(24), // p-6
+                    const Padding(
+                      padding: EdgeInsets.all(24), // p-6
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Título y organizador
-                          const Text(
+                          Text(
                             'Fiesta de Verano en la Playa',
                             style: TextStyle(
                               fontSize: 30, // text-3xl
@@ -154,16 +154,16 @@ class ProviderServicesPage extends StatelessWidget {
                               fontFamily: 'Spline Sans',
                             ),
                           ),
-                          const SizedBox(height: 8), // mt-2
-                          const Text(
+                          SizedBox(height: 8), // mt-2
+                          Text(
                             'Organizado por Sofia Ramirez',
                             style: TextStyle(
                               color: Colors.grey, // Gris para contraste
                             ),
                           ),
-                          const SizedBox(height: 24), // mt-6
+                          SizedBox(height: 24), // mt-6
                           // --- Detalles (Fecha, Hora, Lugar) ---
-                          const Column(
+                          Column(
                             children: [
                               _EventDetailItem(
                                 iconPath: 'assets/calendar.svg',
@@ -182,18 +182,18 @@ class ProviderServicesPage extends StatelessWidget {
                             ],
                           ),
 
-                          const SizedBox(height: 24), // mt-6
+                          SizedBox(height: 24), // mt-6
                           // Descripción
-                          const Text(
+                          Text(
                             'Una noche inolvidable en la playa con música en vivo, DJ, comida y bebidas. ¡No te lo pierdas!',
                             style: TextStyle(
                               color: Colors.black87, // Texto oscuro
                             ),
                           ),
 
-                          const SizedBox(height: 32), // mt-8
+                          SizedBox(height: 32), // mt-8
                           // --- Asistentes ---
-                          const Text(
+                          Text(
                             'Asistentes',
                             style: TextStyle(
                               fontSize: 24, // text-2xl
@@ -201,9 +201,9 @@ class ProviderServicesPage extends StatelessWidget {
                               color: AppColors.primary, // Rojo
                             ),
                           ),
-                          const SizedBox(height: 16), // mt-4
-                          const _AttendeesRow(),
-                          const SizedBox(height: 160),
+                          SizedBox(height: 16), // mt-4
+                          _AttendeesRow(),
+                          SizedBox(height: 160),
                         ],
                       ),
                     ),
@@ -218,18 +218,18 @@ class ProviderServicesPage extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            child: Container(
+            child: ColoredBox(
               color: Colors.white,
               child: _EventHeader(),
             ),
           ),
 
           // 3. Footer Fijo blanco con rojo
-          Positioned(
+          const Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: Container(
+            child: ColoredBox(
               color: Colors.white,
               child: _EventFooter(),
             ),
@@ -347,44 +347,9 @@ class _EventHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       bottom: false,
-      child: Container(
+      child: ColoredBox(
         color: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-        child: Row(
-          children: [
-            // Botón de Volver
-            IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: SvgPicture.asset(
-                'assets/arrow_left.svg',
-                colorFilter: const ColorFilter.mode(
-                  AppColors.primary, // Rojo
-                  BlendMode.srcIn,
-                ),
-                height: 24,
-                width: 24,
-              ),
-            ),
-
-            // Título centrado
-            const Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  right: 24,
-                ), // pr-6 (para compensar el botón)
-                child: Text(
-                  'Detalles del Evento',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18, // text-lg
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary, // Rojo
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+        child: _EventHeader(),
       ),
     );
   }
@@ -412,9 +377,9 @@ class _EventFooter extends StatelessWidget {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton.icon(
-                  onPressed: () {
+                  onPressed: () async {
                     // Navegar a HomeScreen (Mis Eventos)
-                    Navigator.of(context).pushReplacement(
+                    await Navigator.of(context).pushReplacement(
                       MaterialPageRoute<void>(
                         builder: (context) => const HomeScreen(),
                       ),

@@ -452,52 +452,6 @@ class _EventFooter extends StatelessWidget {
   }
 }
 
-class _BottomNavItem extends StatelessWidget {
-  const _BottomNavItem({
-    required this.iconPath,
-    required this.label,
-    required this.isActive,
-  });
-  final String iconPath;
-  final String label;
-  final bool isActive;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isActive
-        ? AppColors.primary
-        : Colors.white70; // Usa el nuevo rojo
-    final fontWeight = isActive ? FontWeight.bold : FontWeight.normal;
-
-    return InkWell(
-      onTap: () {},
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SvgPicture.asset(
-              iconPath,
-              colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-              height: 24,
-              width: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 10,
-                fontWeight: fontWeight,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

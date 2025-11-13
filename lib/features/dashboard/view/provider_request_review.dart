@@ -1,10 +1,11 @@
+import 'package:festeasy_app/core/local_storage.dart' as app_local_storage;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:festeasy_app/core/local_storage.dart' as AppLocalStorage;
 
 class ProviderRequestReview extends StatefulWidget {
+  const ProviderRequestReview({required this.request, super.key});
+
   final Map<String, dynamic> request;
-  const ProviderRequestReview({super.key, required this.request});
 
   @override
   State<ProviderRequestReview> createState() => _ProviderRequestReviewState();
@@ -50,8 +51,8 @@ class _ProviderRequestReviewState extends State<ProviderRequestReview> {
       'createdAt': DateTime.now().toIso8601String(),
     };
     try {
-      await AppLocalStorage.LocalStorage.addReservation(reservation);
-      await AppLocalStorage.LocalStorage.updateRequestStatus(
+      await app_local_storage.LocalStorage.addReservation(reservation);
+      await app_local_storage.LocalStorage.updateRequestStatus(
         widget.request['id'].toString(),
         'accepted',
       );
@@ -61,11 +62,12 @@ class _ProviderRequestReviewState extends State<ProviderRequestReview> {
         ).showSnackBar(const SnackBar(content: Text('Reserva aceptada')));
         Navigator.of(context).pop(true);
       }
-    } catch (e) {
-      if (mounted)
+    } on Exception {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error guardando reserva')),
         );
+      }
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }

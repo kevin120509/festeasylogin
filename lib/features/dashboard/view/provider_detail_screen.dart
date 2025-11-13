@@ -24,7 +24,10 @@ class Proveedor {
 
 // --- Detail Screen ---
 class ProviderDetailScreen extends StatelessWidget {
-  const ProviderDetailScreen({super.key, required this.proveedor});
+  const ProviderDetailScreen({
+    required this.proveedor,
+    super.key,
+  });
 
   final Proveedor proveedor;
 
@@ -70,8 +73,8 @@ class ProviderDetailScreen extends StatelessWidget {
                   Text(
                     proveedor.name,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 16),
 
@@ -138,7 +141,9 @@ class ProviderDetailScreen extends StatelessWidget {
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.public, color: Colors.red),
-                    title: Text(proveedor.contact['website'] ?? 'No disponible'),
+                    title: Text(
+                      proveedor.contact['website'] ?? 'No disponible',
+                    ),
                   ),
                 ],
               ),
@@ -153,7 +158,7 @@ class ProviderDetailScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: ElevatedButton(
           onPressed: () {
-            // TODO: Implement contact or quotation logic
+            // TODO(developer): Implement contact or quotation logic
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
@@ -176,8 +181,8 @@ class ProviderDetailScreen extends StatelessWidget {
     return Text(
       title,
       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+        fontWeight: FontWeight.bold,
+      ),
     );
   }
 }

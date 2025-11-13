@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 
 class LocalStorage {
   static Future<Directory> _appDir() async {
-    return await getApplicationDocumentsDirectory();
+    return getApplicationDocumentsDirectory();
   }
 
   static Future<File> _requestsFile() async {
@@ -26,7 +26,7 @@ class LocalStorage {
       final content = await file.readAsString();
       final data = jsonDecode(content) as List<dynamic>;
       return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-    } catch (_) {
+    } on Exception catch (_) {
       return [];
     }
   }
@@ -59,7 +59,7 @@ class LocalStorage {
       final content = await file.readAsString();
       final data = jsonDecode(content) as List<dynamic>;
       return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-    } catch (_) {
+    } on Exception catch (_) {
       return [];
     }
   }

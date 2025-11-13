@@ -1,7 +1,7 @@
+import 'package:festeasy_app/core/local_storage.dart' as app_local_storage;
 import 'package:festeasy_app/features/dashboard/view/provider_services_page.dart';
-import 'package:festeasy_app/core/local_storage.dart' as AppLocalStorage;
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,7 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: const SizedBox.shrink(),
-        centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(70),
           child: Padding(
@@ -53,7 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _FilterChip(
                   label: 'Próximos',
@@ -84,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Lista de eventos (reservas guardadas en JSON)
           Expanded(
             child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: AppLocalStorage.LocalStorage.getReservations(),
+              future: app_local_storage.LocalStorage.getReservations(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -94,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 final now = DateTime.now();
                 final upcoming = <Map<String, dynamic>>[];
                 final past = <Map<String, dynamic>>[];
-                for (var r in all) {
+                for (final r in all) {
                   try {
                     final dt = DateTime.parse(r['date'].toString());
                     if (dt.isAfter(now)) {
@@ -102,10 +100,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     } else {
                       past.add(r);
                     }
-                  } catch (_) {}
+                  } on FormatException catch (_) {}
                 }
 
-                final List<Widget> children = [];
+                final children = <Widget>[];
                 if (_selectedFilter == 'Próximos' ||
                     _selectedFilter == 'Todos') {
                   children.add(
@@ -142,8 +140,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           lugar: r['description']?.toString() ?? '',
                           urlImagen:
                               'https://via.placeholder.com/120x120?text=Evento',
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            await Navigator.push(
                               context,
                               MaterialPageRoute<void>(
                                 builder: (context) =>
@@ -193,8 +191,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           lugar: r['description']?.toString() ?? '',
                           urlImagen:
                               'https://via.placeholder.com/120x120?text=Evento',
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            await Navigator.push(
                               context,
                               MaterialPageRoute<void>(
                                 builder: (context) =>
@@ -223,7 +221,6 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         backgroundColor: const Color(0xFFEA4D4D),
-        shape: const CircleBorder(),
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -312,7 +309,7 @@ class EventCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[300]!, width: 1),
+          border: Border.all(color: Colors.grey[300]!),
         ),
         child: Row(
           children: [
