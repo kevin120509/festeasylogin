@@ -1,6 +1,6 @@
-import 'package:festeasy_app/core/local_storage.dart' as app_local_storage;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProviderRequestReview extends StatefulWidget {
   const ProviderRequestReview({required this.request, super.key});
@@ -15,6 +15,12 @@ class _ProviderRequestReviewState extends State<ProviderRequestReview> {
   final TextEditingController _providerDescController = TextEditingController();
   DateTime? _selectedDate;
   bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('ProviderRequestReview: initState - request: ${widget.request}');
+  }
 
   @override
   void dispose() {
@@ -33,7 +39,7 @@ class _ProviderRequestReviewState extends State<ProviderRequestReview> {
     if (picked != null) setState(() => _selectedDate = picked);
   }
 
-  Future<void> _acceptRequest() async {
+  Future<void> _handleAcceptRequest() async {
     if (_selectedDate == null) {
       ScaffoldMessenger.of(
         context,
@@ -41,31 +47,99 @@ class _ProviderRequestReviewState extends State<ProviderRequestReview> {
       return;
     }
     setState(() => _isSaving = true);
-    final reservation = {
-      'id': DateTime.now().millisecondsSinceEpoch.toString(),
-      'requestId': widget.request['id'].toString(),
-      'title': widget.request['title'].toString(),
-      'description': widget.request['description'].toString(),
-      'providerDescription': _providerDescController.text.trim(),
-      'date': _selectedDate!.toIso8601String(),
-      'createdAt': DateTime.now().toIso8601String(),
-    };
+
     try {
-      await app_local_storage.LocalStorage.addReservation(reservation);
-      await app_local_storage.LocalStorage.updateRequestStatus(
-        widget.request['id'].toString(),
-        'accepted',
-      );
+      final userId = Supabase.instance.client.auth.currentUser!.id;
+
+      // 1. Create a new cotizacion entry
+      final cotizacionResponse = await Supabase.instance.client
+          .from('cotizaciones')
+          .insert({
+            'user_id': userId,
+            'solicitud_id': widget.request['solicitud_id'],
+            'titulo': widget.request['texto_original'],
+            'descripcion': _providerDescController.text.trim(),
+            'estado': 'enviada',
+            'validez_dias': 7, // Default validity
+          })
+          .select()
+          .single();
+
+      final cotizacionId = cotizacionResponse['cotizacion_id'] as int;
+
+      // 2. Create a cotizacion_item entry (example, adjust as needed)
+      await Supabase.instance.client.from('cotizacion_items').insert({
+        'cotizacion_id': cotizacionId,
+        // Assuming a default service or category for now,
+        // this would need to be dynamic based on the request or provider input
+        'servicio_id': 1, // Placeholder: Replace with actual service_id
+        'proveedor_id': userId,
+        'cantidad': 1,
+        'precio_unitario': 0.0, // Placeholder: Replace with actual price
+        'notas': 'Propuesta para solicitud: ${widget.request['solicitud_id']}',
+      });
+
+      // 3. Update the solicitud_texto status
+      await Supabase.instance.client
+          .from('solicitudes_texto')
+          .update({'estado': 'cotizado'})
+          .eq('solicitud_id', widget.request['solicitud_id'] as int);
+
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Reserva aceptada')));
-        Navigator.of(context).pop(true);
+        ).showSnackBar(
+          const SnackBar(
+            content: Text('Cotización enviada y solicitud actualizada'),
+          ),
+        );
+        Navigator.of(context).pop(true); // Indicate acceptance
       }
-    } on Exception {
+    } on PostgrestException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error guardando reserva')),
+          SnackBar(content: Text('Error de base de datos: ${e.message}')),
+        );
+      }
+    } on Exception catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error guardando cotización: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  Future<void> _handleRejectRequest() async {
+    setState(() => _isSaving = true);
+    try {
+      await Supabase.instance.client
+          .from('solicitudes_texto')
+          .update({'estado': 'rechazado'})
+          .eq('solicitud_id', widget.request['solicitud_id'] as int);
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(
+          const SnackBar(
+            content: Text('Solicitud rechazada'),
+          ),
+        );
+        Navigator.of(context).pop(false); // Indicate rejection
+      }
+    } on PostgrestException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error de base de datos: ${e.message}')),
+        );
+      }
+    } on Exception catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al rechazar solicitud: $e')),
         );
       }
     } finally {
@@ -75,7 +149,10 @@ class _ProviderRequestReviewState extends State<ProviderRequestReview> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('ProviderRequestReview: build method started.');
     final request = widget.request;
+    debugPrint('ProviderRequestReview: request in build: $request');
+    debugPrint('ProviderRequestReview: texto_original: ${request['texto_original']}');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Revisar solicitud'),
@@ -89,11 +166,11 @@ class _ProviderRequestReviewState extends State<ProviderRequestReview> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              request['title']?.toString() ?? '',
+              request['texto_original']?.toString() ?? '',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text(request['description']?.toString() ?? ''),
+            Text(request['texto_original'] as String? ?? ''),
             const SizedBox(height: 16),
             TextField(
               controller: _providerDescController,
@@ -116,17 +193,32 @@ class _ProviderRequestReviewState extends State<ProviderRequestReview> {
               ],
             ),
             const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isSaving ? null : _acceptRequest,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFEA4D4D),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isSaving ? null : _handleRejectRequest,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: _isSaving
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text('Rechazar'),
+                  ),
                 ),
-                child: _isSaving
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Aceptar y reservar'),
-              ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isSaving ? null : _handleAcceptRequest,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                    child: _isSaving
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text('Aceptar'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
+import 'package:festeasy_app/features/event/view/crear_evento_screen.dart';
+import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ClientDashboard extends StatefulWidget {
   const ClientDashboard({super.key});
@@ -17,10 +20,19 @@ class _ClientDashboardState extends State<ClientDashboard> {
       TextEditingController();
   final TextEditingController _eventTitleController = TextEditingController();
 
+  late Future<List<Map<String, dynamic>>> _recommendedProviders;
+  late Future<List<Map<String, dynamic>>> _recentQuotations;
+  late Future<List<Map<String, dynamic>>> _userEvents;
+
+  int _selectedTabIndex = 0;
+
   @override
   void initState() {
     super.initState();
     unawaited(_loadUserName());
+    _recommendedProviders = _fetchRecommendedProviders();
+    _recentQuotations = _fetchRecentQuotations();
+    _userEvents = _fetchUserEvents(); // Initialize _userEvents here
   }
 
   @override
@@ -39,36 +51,61 @@ class _ClientDashboardState extends State<ClientDashboard> {
     }
   }
 
+  Future<List<Map<String, dynamic>>> _fetchRecommendedProviders() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('servicios')
+          .select('*, proveedores(full_name)')
+          .limit(10);
+      return List<Map<String, dynamic>>.from(response);
+    } on PostgrestException catch (e) {
+      debugPrint('Error fetching recommended providers: $e');
+      return [];
+    } on Exception catch (e) {
+      debugPrint('An unexpected error occurred: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchRecentQuotations() async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser!.id;
+      final response = await Supabase.instance.client
+          .from('cotizaciones')
+          .select()
+          .eq('user_id', userId)
+          .limit(5);
+      return List<Map<String, dynamic>>.from(response);
+    } on PostgrestException catch (e) {
+      debugPrint('Error fetching recent quotations: $e');
+      return [];
+    } on Exception catch (e) {
+      debugPrint('An unexpected error occurred: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchUserEvents() async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser!.id;
+      final response = await Supabase.instance.client
+          .from('eventos')
+          .select()
+          .eq('cliente_id', userId)
+          .order('fecha_evento', ascending: true);
+      return List<Map<String, dynamic>>.from(response);
+    } on PostgrestException catch (e) {
+      debugPrint('Error fetching user events: $e');
+      return [];
+    } on Exception catch (e) {
+      debugPrint('An unexpected error occurred: $e');
+      return [];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final providerImages = [
-      'assets/proveedores/alimentos y catering.png',
-      'assets/proveedores/decoracion de eventos.png',
-      'assets/proveedores/fotografia y evento.png',
-      'assets/proveedores/musicaDJ.png',
-      'assets/proveedores/show.png',
-    ];
-
-    final recentQuotations = [
-      {
-        'title': 'Boda de Ensueño',
-        'provider': 'Eventos Premier',
-        'price': r'$5,000',
-      },
-      {
-        'title': 'Fiesta de 15 Años',
-        'provider': 'Decoraciones Mágicas',
-        'price': r'$2,500',
-      },
-      {
-        'title': 'Conferencia Corporativa',
-        'provider': 'Catering Express',
-        'price': r'$3,000',
-      },
-    ];
-
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: Text('Hola, ${_userName ?? ''} 👋'),
         actions: [
@@ -85,136 +122,366 @@ class _ClientDashboardState extends State<ClientDashboard> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const TextField(
-                decoration: InputDecoration(
-                  hintText: 'Buscar servicios para mi evento',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
+      body: _buildTabContent(),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedTabIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedTabIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Inicio',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event),
+            label: 'Mis Eventos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Perfil',
+          ),
+        ],
+        selectedItemColor: Colors.red,
+        unselectedItemColor: Colors.grey,
+      ),
+    );
+  }
+
+  Widget _buildInicioTab() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const TextField(
+              decoration: InputDecoration(
+                hintText: 'Buscar servicios para mi evento',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide.none,
                 ),
+                filled: true,
+                fillColor: Colors.white,
               ),
-              const SizedBox(height: 16),
-              const TextField(
-                decoration: InputDecoration(
-                  hintText: 'Describe tu evento',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _eventDescriptionController,
+              decoration: const InputDecoration(
+                hintText: 'Describe tu evento',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide.none,
                 ),
-                maxLines: 3,
+                filled: true,
+                fillColor: Colors.white,
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Center(
-                  child: Text(
-                    'Generar sugerencias',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Proveedores recomendados',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: providerImages.length,
-                  itemBuilder: (context, index) {
-                    final imagePath = providerImages[index];
-                    final title = imagePath.split('/').last.split('.').first;
-                    return Card(
-                      margin: const EdgeInsets.only(right: 16),
-                      child: SizedBox(
-                        width: 150,
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Image.asset(
-                                imagePath,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Text(title),
-                            ),
-                          ],
+              maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () async {
+                final description = _eventDescriptionController.text.trim();
+                if (description.isNotEmpty) {
+                  try {
+                    final userId =
+                        Supabase.instance.client.auth.currentUser!.id;
+                    await Supabase.instance.client
+                        .from('solicitudes_texto')
+                        .insert({
+                          'user_id': userId,
+                          'texto_original': description,
+                          'estado': 'pendiente_ia',
+                        });
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Solicitud enviada para análisis'),
                         ),
+                      );
+                      _eventDescriptionController.clear();
+                    }
+                  } on PostgrestException catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error al enviar solicitud: $e'),
+                        ),
+                      );
+                    }
+                  } on Exception catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('An unexpected error occurred: $e'),
+                        ),
+                      );
+                    }
+                  }
+                } else {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('La descripción no puede estar vacía'),
                       ),
                     );
-                  },
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Center(
+                child: Text(
+                  'Generar sugerencias',
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
-              const SizedBox(height: 24),
-              Text(
-                'Cotizaciones recientes',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: recentQuotations.length,
-                  itemBuilder: (context, index) {
-                    final quotation = recentQuotations[index];
-                    return Card(
-                      margin: const EdgeInsets.only(right: 16),
-                      child: SizedBox(
-                        width: 200,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Proveedores recomendados',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 150,
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: _recommendedProviders,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text('No hay proveedores recomendados'),
+                    );
+                  }
+                  final providers = snapshot.data!;
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: providers.length,
+                    itemBuilder: (context, index) {
+                      final provider = providers[index];
+                      final providerName =
+                          (provider['proveedores']
+                                  as Map<String, dynamic>?)?['nombre_publico']
+                              as String? ??
+                          'Proveedor';
+                      final serviceName =
+                          provider['nombre'] as String? ?? 'Servicio';
+                      return Card(
+                        margin: const EdgeInsets.only(right: 16),
+                        child: SizedBox(
+                          width: 150,
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                quotation['title']!,
-                                style: Theme.of(context).textTheme.titleMedium,
+                              Expanded(
+                                child: Image.network(
+                                  'https://via.placeholder.com/150', // Placeholder image
+                                  fit: BoxFit.cover,
+                                ),
                               ),
-                              const SizedBox(height: 4),
-                              Text(quotation['provider']!),
-                              const Spacer(),
-                              Text(
-                                quotation['price']!,
-                                style: Theme.of(context).textTheme.titleLarge,
+                              Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Text('$serviceName ($providerName)'),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Cotizaciones recientes',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 150,
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: _recentQuotations,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text('No hay cotizaciones recientes'),
+                    );
+                  }
+                  final quotations = snapshot.data!;
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: quotations.length,
+                    itemBuilder: (context, index) {
+                      final quotation = quotations[index];
+                      return Card(
+                        margin: const EdgeInsets.only(right: 16),
+                        child: SizedBox(
+                          width: 200,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  quotation['titulo'] as String? ??
+                                      'Sin título',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  quotation['estado'] as String? ??
+                                      'Desconocido',
+                                ),
+                                const Spacer(),
+                                Text(
+                                  '\$${(quotation['total_estimado'] as num?)?.toStringAsFixed(2) ?? '0.00'}',
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  Widget _buildMisEventosTab() {
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (context) => const CrearEventoScreen(),
+            ),
+          );
+          // Refresh events after returning from CrearEventoScreen
+          setState(() {
+            _userEvents = _fetchUserEvents();
+          });
+        },
+        backgroundColor: Colors.red,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _userEvents,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No tienes eventos creados.'));
+          }
+          final events = snapshot.data!;
+          return ListView.builder(
+            itemCount: events.length,
+            itemBuilder: (context, index) {
+              final event = events[index];
+              return Card(
+                margin: const EdgeInsets.all(8),
+                child: ListTile(
+                  title: Text(
+                    event['titulo'] as String? ?? 'Evento sin título',
+                  ),
+                  subtitle: Text(
+                    'Fecha: ${event['fecha_evento']} - Estado: ${event['estado_evento']}',
+                  ),
+                  // Add more details or navigation to event detail page
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildPerfilTab() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FutureBuilder<Map<String, dynamic>?>(
+            future: _authService.getProfileData(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              }
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+              final profile = snapshot.data;
+              final fullName = profile?['full_name'] as String? ?? 'Usuario';
+              return Text(
+                'Hola, $fullName',
+                style: Theme.of(context).textTheme.headlineMedium,
+              );
+            },
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () async {
+              await Supabase.instance.client.auth.signOut();
+              if (mounted) {
+                await Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute<void>(
+                    builder: (context) => const WelcomePage(),
+                  ),
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text('Cerrar Sesión'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabContent() {
+    switch (_selectedTabIndex) {
+      case 0:
+        return _buildInicioTab();
+      case 1:
+        return _buildMisEventosTab();
+      case 2:
+        return _buildPerfilTab();
+      default:
+        return _buildInicioTab();
+    }
   }
 }

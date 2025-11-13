@@ -1,7 +1,6 @@
-import 'package:festeasy_app/core/local_storage.dart' as app_local_storage;
 import 'package:festeasy_app/features/dashboard/home_screen.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_request_review.dart';
-import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
+import 'package:festeasy_app/features/profile/view/provider_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -71,7 +70,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
       case 1:
         return _buildEventosTab();
       case 2:
-        return _buildPerfilTab();
+        return const ProviderProfileScreen();
       case 3:
         return _buildAjustesTab();
       default:
@@ -103,24 +102,37 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
           ),
           Expanded(
             child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: app_local_storage.LocalStorage.getRequests(),
+              future: Supabase.instance.client
+                  .from('solicitudes_texto')
+                  .select()
+                  .inFilter('estado', ['pendiente_ia', 'cotizado'])
+                  .order('create_at', ascending: false)
+                  .then(
+                    List<Map<String, dynamic>>.from,
+                  ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                final all = snapshot.data ?? [];
-                final pending = all
-                    .where((e) => (e['status']?.toString() ?? '') == 'pending')
-                    .toList();
-                if (pending.isEmpty) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                final pendingRequests = snapshot.data ?? [];
+                if (pendingRequests.isEmpty) {
                   return const Center(
                     child: Text('No hay solicitudes pendientes'),
                   );
                 }
                 return ListView.builder(
-                  itemCount: pending.length,
+                  itemCount: pendingRequests.length,
                   itemBuilder: (context, index) {
-                    final req = pending[index];
+                    final req = pendingRequests[index];
+                    final isAccepted = req['estado'] == 'cotizado';
+                    final borderColor =
+                        isAccepted ? Colors.green : const Color(0xFFEA4D4D);
+                    final textColor =
+                        isAccepted ? Colors.green : const Color(0xFFEA4D4D);
+
                     return Card(
                       margin: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -128,6 +140,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: borderColor, width: 2),
                       ),
                       elevation: 2,
                       color: Colors.white,
@@ -137,15 +150,15 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              req['title']?.toString() ?? '',
-                              style: const TextStyle(
+                              req['texto_original']?.toString() ?? '',
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                color: Color(0xFFEA4D4D),
+                                color: textColor,
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Text(req['description']?.toString() ?? ''),
+                            Text('Estado: ${req['estado']?.toString() ?? ''}'),
                             const SizedBox(height: 16),
                             Align(
                               alignment: Alignment.centerRight,
@@ -159,7 +172,12 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                                           ),
                                         ),
                                       );
-                                  if (res ?? false) setState(() {});
+                                  if (res != null) {
+                                    setState(() {
+                                      // Refresh the list after accept/reject
+                                      // This will re-fetch the data and update the UI
+                                    });
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFEA4D4D),
@@ -215,56 +233,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
   }
 
   Widget _buildEventosTab() {
-    return const HomeScreen();
-  }
-
-  Widget _buildPerfilTab() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.person, size: 80, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text('Perfil del Proveedor'),
-            const SizedBox(height: 8),
-            Text(
-              'Aquí irá la información de tu perfil',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () async {
-                // Cerrar sesión y volver a WelcomePage
-                try {
-                  await Supabase.instance.client.auth.signOut();
-                } on AuthException catch (_) {}
-                if (!mounted) return;
-                await Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute<void>(builder: (_) => const WelcomePage()),
-                  (route) => false,
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEA4D4D),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 14,
-                  horizontal: 24,
-                ),
-              ),
-              child: const Text(
-                'Cerrar sesión',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return const HomeScreen(useScaffold: false);
   }
 
   Widget _buildAjustesTab() {

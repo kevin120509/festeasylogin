@@ -1,10 +1,12 @@
-import 'package:festeasy_app/core/local_storage.dart' as app_local_storage;
 import 'package:festeasy_app/features/dashboard/view/provider_services_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({this.useScaffold = true, super.key});
+
+  final bool useScaffold;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -12,242 +14,280 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _selectedFilter = 'Próximos';
+  late Future<List<Map<String, dynamic>>> _providerEvents;
+
+  @override
+  void initState() {
+    super.initState();
+    _providerEvents = _fetchProviderEvents();
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchProviderEvents() async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser!.id;
+      final response = await Supabase.instance.client
+          .from('evento_servicios')
+          .select('*, eventos(*)')
+          .eq('proveedor_id', userId)
+          .order('fecha_servicio', ascending: true);
+      return List<Map<String, dynamic>>.from(response);
+    } on PostgrestException catch (e) {
+      debugPrint('Error fetching provider events: $e');
+      return [];
+    } on Exception catch (e) {
+      debugPrint('An unexpected error occurred: $e');
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const SizedBox.shrink(),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(70),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              children: [
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Buscar eventos',
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                      borderSide: BorderSide.none,
+    final Widget content = Column(
+      children: [
+        // Tabs de filtro
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              _FilterChip(
+                label: 'Próximos',
+                isSelected: _selectedFilter == 'Próximos',
+                onSelected: () {
+                  setState(() => _selectedFilter = 'Próximos');
+                },
+              ),
+              const SizedBox(width: 8),
+              _FilterChip(
+                label: 'Pasados',
+                isSelected: _selectedFilter == 'Pasados',
+                onSelected: () {
+                  setState(() => _selectedFilter = 'Pasados');
+                },
+              ),
+              const SizedBox(width: 8),
+              _FilterChip(
+                label: 'Todos',
+                isSelected: _selectedFilter == 'Todos',
+                onSelected: () {
+                  setState(() => _selectedFilter = 'Todos');
+                },
+              ),
+            ],
+          ),
+        ),
+        // Lista de eventos (reservas guardadas en JSON)
+        Expanded(
+          child: FutureBuilder<List<Map<String, dynamic>>>(
+            future: _providerEvents,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+              final allEvents = snapshot.data ?? [];
+              // Convert dates and filter
+              final now = DateTime.now();
+              final upcoming = <Map<String, dynamic>>[];
+              final past = <Map<String, dynamic>>[];
+              for (final eventService in allEvents) {
+                try {
+                  final eventDate = DateTime.parse(
+                    eventService['fecha_servicio'] as String,
+                  );
+                  if (eventDate.isAfter(now)) {
+                    upcoming.add(eventService);
+                  } else {
+                    past.add(eventService);
+                  }
+                } on FormatException catch (_) {}
+              }
+
+              final children = <Widget>[];
+              if (_selectedFilter == 'Próximos' || _selectedFilter == 'Todos') {
+                children.add(
+                  const Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      'Próximos',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
+                );
+                if (upcoming.isEmpty) {
+                  children.add(
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('No hay eventos próximos'),
+                    ),
+                  );
+                } else {
+                  children.addAll(
+                    upcoming.map((eventService) {
+                      final event = eventService['eventos'] as Map<String, dynamic>;
+                      final dt = DateTime.parse(
+                        eventService['fecha_servicio'] as String,
+                      );
+                      final fecha = DateFormat('d MMMM', 'es_ES').format(dt);
+                      return EventCard(
+                        fecha: fecha,
+                        titulo: event['titulo']?.toString() ?? '',
+                        lugar: event['direccion_texto']?.toString() ?? '',
+                        urlImagen:
+                            'https://via.placeholder.com/120x120?text=Evento',
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (context) => const ProviderServicesPage(),
+                            ),
+                          );
+                        },
+                      );
+                    }),
+                  );
+                }
+              }
+
+              if (_selectedFilter == 'Pasados' || _selectedFilter == 'Todos') {
+                children.add(
+                  const Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    child: Text(
+                      'Pasados',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                );
+                if (past.isEmpty) {
+                  children.add(
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('No hay eventos pasados'),
+                    ),
+                  );
+                } else {
+                  children.addAll(
+                    past.map((eventService) {
+                      final event = eventService['eventos'] as Map<String, dynamic>;
+                      final dt = DateTime.parse(
+                        eventService['fecha_servicio'] as String,
+                      );
+                      final fecha = DateFormat('d MMMM', 'es_ES').format(dt);
+                      return EventCard(
+                        fecha: fecha,
+                        titulo: event['titulo']?.toString() ?? '',
+                        lugar: event['direccion_texto']?.toString() ?? '',
+                        urlImagen:
+                            'https://via.placeholder.com/120x120?text=Evento',
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (context) => const ProviderServicesPage(),
+                            ),
+                          );
+                        },
+                      );
+                    }),
+                  );
+                }
+              }
+
+              children.add(const SizedBox(height: 20));
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: children,
                 ),
-              ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+
+    if (widget.useScaffold) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          title: const SizedBox.shrink(),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(70),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                children: [
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Buscar eventos',
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      body: Column(
-        children: [
-          // Tabs de filtro
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                _FilterChip(
-                  label: 'Próximos',
-                  isSelected: _selectedFilter == 'Próximos',
-                  onSelected: () {
-                    setState(() => _selectedFilter = 'Próximos');
-                  },
-                ),
-                const SizedBox(width: 8),
-                _FilterChip(
-                  label: 'Pasados',
-                  isSelected: _selectedFilter == 'Pasados',
-                  onSelected: () {
-                    setState(() => _selectedFilter = 'Pasados');
-                  },
-                ),
-                const SizedBox(width: 8),
-                _FilterChip(
-                  label: 'Todos',
-                  isSelected: _selectedFilter == 'Todos',
-                  onSelected: () {
-                    setState(() => _selectedFilter = 'Todos');
-                  },
-                ),
-              ],
+        body: content,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          backgroundColor: const Color(0xFFEA4D4D),
+          child: const Icon(Icons.add, color: Colors.white, size: 28),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xFFEA4D4D),
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Inicio',
             ),
-          ),
-          // Lista de eventos (reservas guardadas en JSON)
-          Expanded(
-            child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: app_local_storage.LocalStorage.getReservations(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final all = snapshot.data ?? [];
-                // Convert dates and filter
-                final now = DateTime.now();
-                final upcoming = <Map<String, dynamic>>[];
-                final past = <Map<String, dynamic>>[];
-                for (final r in all) {
-                  try {
-                    final dt = DateTime.parse(r['date'].toString());
-                    if (dt.isAfter(now)) {
-                      upcoming.add(r);
-                    } else {
-                      past.add(r);
-                    }
-                  } on FormatException catch (_) {}
-                }
-
-                final children = <Widget>[];
-                if (_selectedFilter == 'Próximos' ||
-                    _selectedFilter == 'Todos') {
-                  children.add(
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Text(
-                        'Próximos',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  );
-                  if (upcoming.isEmpty) {
-                    children.add(
-                      const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text('No hay reservas próximas'),
-                      ),
-                    );
-                  } else {
-                    children.addAll(
-                      upcoming.map((r) {
-                        final dt = DateTime.parse(r['date'].toString());
-                        final fecha = DateFormat('d MMMM', 'es_ES').format(dt);
-                        return EventCard(
-                          fecha: fecha,
-                          titulo: r['title']?.toString() ?? '',
-                          lugar: r['description']?.toString() ?? '',
-                          urlImagen:
-                              'https://via.placeholder.com/120x120?text=Evento',
-                          onTap: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (context) =>
-                                    const ProviderServicesPage(),
-                              ),
-                            );
-                          },
-                        );
-                      }),
-                    );
-                  }
-                }
-
-                if (_selectedFilter == 'Pasados' ||
-                    _selectedFilter == 'Todos') {
-                  children.add(
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                      child: Text(
-                        'Pasados',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  );
-                  if (past.isEmpty) {
-                    children.add(
-                      const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text('No hay reservas pasadas'),
-                      ),
-                    );
-                  } else {
-                    children.addAll(
-                      past.map((r) {
-                        final dt = DateTime.parse(r['date'].toString());
-                        final fecha = DateFormat('d MMMM', 'es_ES').format(dt);
-                        return EventCard(
-                          fecha: fecha,
-                          titulo: r['title']?.toString() ?? '',
-                          lugar: r['description']?.toString() ?? '',
-                          urlImagen:
-                              'https://via.placeholder.com/120x120?text=Evento',
-                          onTap: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (context) =>
-                                    const ProviderServicesPage(),
-                              ),
-                            );
-                          },
-                        );
-                      }),
-                    );
-                  }
-                }
-
-                children.add(const SizedBox(height: 20));
-                return SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: children,
-                  ),
-                );
-              },
+            BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_today),
+              label: 'Eventos',
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: const Color(0xFFEA4D4D),
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFFEA4D4D),
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Inicio',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Eventos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Perfil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Ajustes',
-          ),
-        ],
-      ),
-    );
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Perfil',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Ajustes',
+            ),
+          ],
+        ),
+      );
+    } else {
+      return content;
+    }
   }
 }
 

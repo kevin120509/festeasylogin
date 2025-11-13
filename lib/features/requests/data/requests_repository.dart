@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RequestsRepository {
   RequestsRepository({SupabaseClient? client})
-      : supabase = client ?? Supabase.instance.client;
+    : supabase = client ?? Supabase.instance.client;
 
   final SupabaseClient supabase;
 
