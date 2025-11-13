@@ -14,7 +14,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _navigateToWelcome();
+    unawaited(_navigateToWelcome());
   }
 
   Future<void> _navigateToWelcome() async {

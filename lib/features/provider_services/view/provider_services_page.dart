@@ -452,6 +452,7 @@ class _EventFooter extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _BottomNavItem extends StatelessWidget {
   const _BottomNavItem({
     required this.iconPath,

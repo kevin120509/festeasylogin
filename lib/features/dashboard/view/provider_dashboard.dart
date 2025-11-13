@@ -1,10 +1,11 @@
+import 'dart:async';
+
+import 'package:festeasy_app/core/local_storage.dart' as app_local_storage;
 import 'package:festeasy_app/features/dashboard/home_screen.dart';
-import 'package:festeasy_app/features/dashboard/view/provider_services_page.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_request_review.dart';
-import 'package:festeasy_app/core/local_storage.dart' as AppLocalStorage;
 import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProviderDashboard extends StatefulWidget {
   const ProviderDashboard({super.key});
@@ -81,7 +82,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
   }
 
   Widget _buildInitioTab() {
-    return Container(
+    return ColoredBox(
       color: Colors.white,
       child: Column(
         children: [
@@ -104,7 +105,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
           ),
           Expanded(
             child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: AppLocalStorage.LocalStorage.getRequests(),
+              future: app_local_storage.LocalStorage.getRequests(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -160,7 +161,7 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                                           ),
                                         ),
                                       );
-                                  if (res == true) setState(() {});
+                                  if (res ?? false) setState(() {});
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFEA4D4D),
@@ -240,12 +241,14 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                 // Cerrar sesión y volver a WelcomePage
                 try {
                   await Supabase.instance.client.auth.signOut();
-                } catch (_) {}
+                } on AuthException {
+                  // Ignore
+                }
                 if (!mounted) return;
-                Navigator.of(context).pushAndRemoveUntil(
+                unawaited(Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute<void>(builder: (_) => const WelcomePage()),
                   (route) => false,
-                );
+                ));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFEA4D4D),

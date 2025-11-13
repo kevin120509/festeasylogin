@@ -24,7 +24,7 @@ class Proveedor {
 
 // --- Detail Screen ---
 class ProviderDetailScreen extends StatelessWidget {
-  const ProviderDetailScreen({super.key, required this.proveedor});
+  const ProviderDetailScreen({required this.proveedor, super.key});
 
   final Proveedor proveedor;
 
@@ -138,7 +138,9 @@ class ProviderDetailScreen extends StatelessWidget {
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.public, color: Colors.red),
-                    title: Text(proveedor.contact['website'] ?? 'No disponible'),
+                    title: Text(
+                      proveedor.contact['website'] ?? 'No disponible',
+                    ),
                   ),
                 ],
               ),
@@ -153,7 +155,7 @@ class ProviderDetailScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: ElevatedButton(
           onPressed: () {
-            // TODO: Implement contact or quotation logic
+            // TODO(you): Implement contact or quotation logic
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,

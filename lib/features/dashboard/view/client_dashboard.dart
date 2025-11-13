@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
+import 'package:festeasy_app/features/event/view/describe_event_page.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ClientDashboard extends StatefulWidget {
   const ClientDashboard({super.key});
@@ -14,7 +14,9 @@ class ClientDashboard extends StatefulWidget {
 class _ClientDashboardState extends State<ClientDashboard> {
   final AuthService _authService = AuthService();
   String? _userName;
-  int _selectedTabIndex = 0;
+  // TODO(you): remove this when you use it
+  // ignore: unused_field
+  final int _selectedTabIndex = 0;
   final TextEditingController _eventDescriptionController =
       TextEditingController();
   final TextEditingController _eventTitleController = TextEditingController();
@@ -30,44 +32,6 @@ class _ClientDashboardState extends State<ClientDashboard> {
     _eventDescriptionController.dispose();
     _eventTitleController.dispose();
     super.dispose();
-  }
-
-  Future<void> _submitRequest() async {
-    final title = _eventTitleController.text.trim();
-    final description = _eventDescriptionController.text.trim();
-    if (title.isEmpty || description.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Por favor completa título y descripción'),
-          ),
-        );
-      }
-      return;
-    }
-    final id = DateTime.now().millisecondsSinceEpoch.toString();
-    final request = {
-      'id': id,
-      'title': title,
-      'description': description,
-      'status': 'pending',
-      'createdAt': DateTime.now().toIso8601String(),
-    };
-    try {
-      await AppLocalStorage.LocalStorage.addRequest(request);
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Solicitud enviada')));
-        _eventTitleController.clear();
-        _eventDescriptionController.clear();
-      }
-    } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al guardar la solicitud')),
-        );
-    }
   }
 
   Future<void> _loadUserName() async {
@@ -117,8 +81,8 @@ class _ClientDashboardState extends State<ClientDashboard> {
               backgroundColor: Colors.red,
               child: Icon(Icons.shopping_cart, color: Colors.white),
             ),
-            onPressed: () async {
-              await Navigator.pushNamed(context, '/payment');
+            onPressed: () {
+              unawaited(Navigator.pushNamed(context, '/payment'));
             },
           ),
         ],
@@ -133,7 +97,7 @@ class _ClientDashboardState extends State<ClientDashboard> {
             children: [
               const TextField(
                 decoration: InputDecoration(
-                  hintText: 'Buscar servicios para mi evento',
+                  hintText: 'Buscar services para mi evento',
                   prefixIcon: Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -144,21 +108,14 @@ class _ClientDashboardState extends State<ClientDashboard> {
                 ),
               ),
               const SizedBox(height: 16),
-              const TextField(
-                decoration: InputDecoration(
-                  hintText: 'Describe tu evento',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  unawaited(Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const DescribeEventPage(),
+                    ),
+                  ));
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   shape: RoundedRectangleBorder(
@@ -168,7 +125,7 @@ class _ClientDashboardState extends State<ClientDashboard> {
                 ),
                 child: const Center(
                   child: Text(
-                    'Generar sugerencias',
+                    'Crear Evento',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

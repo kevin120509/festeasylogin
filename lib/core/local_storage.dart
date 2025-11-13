@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 
 class LocalStorage {
   static Future<Directory> _appDir() async {
-    return await getApplicationDocumentsDirectory();
+    return getApplicationDocumentsDirectory();
   }
 
   static Future<File> _requestsFile() async {
@@ -22,11 +22,11 @@ class LocalStorage {
   static Future<List<Map<String, dynamic>>> getRequests() async {
     try {
       final file = await _requestsFile();
-      if (!await file.exists()) return [];
-      final content = await file.readAsString();
+      if (!file.existsSync()) return [];
+      final content = file.readAsStringSync();
       final data = jsonDecode(content) as List<dynamic>;
       return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-    } catch (_) {
+    } on FileSystemException {
       return [];
     }
   }
@@ -55,11 +55,11 @@ class LocalStorage {
   static Future<List<Map<String, dynamic>>> getReservations() async {
     try {
       final file = await _reservationsFile();
-      if (!await file.exists()) return [];
-      final content = await file.readAsString();
+      if (!file.existsSync()) return [];
+      final content = file.readAsStringSync();
       final data = jsonDecode(content) as List<dynamic>;
       return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-    } catch (_) {
+    } on FileSystemException {
       return [];
     }
   }
