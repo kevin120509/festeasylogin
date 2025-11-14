@@ -19,7 +19,7 @@ class PaymentPage extends StatelessWidget {
             // TODO(user): Implement navigation
           },
         ),
-        title: const Text('Payment'),
+        title: const Text('Pagos'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -29,14 +29,14 @@ class PaymentPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Order Summary',
+                'Resumen del pedido',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 16),
               const OrderSummaryCard(),
               const SizedBox(height: 24),
               Text(
-                'Payment Method',
+                'Metodos de pago',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 16),
@@ -68,32 +68,35 @@ class OrderSummaryCard extends StatelessWidget {
           const OrderSummaryItem(
             title: 'DJ Beats',
             category: 'DJ',
-            price: r'$250.00',
+            price: r'$5000.00',
           ),
           const Divider(height: 1),
           const OrderSummaryItem(
             title: 'Catering Delights',
-            category: 'Caterer',
-            price: r'$400.00',
+            category: 'Catering',
+            price: r'$8000.00',
           ),
           const Divider(height: 1),
           const OrderSummaryItem(
             title: 'Event Space',
-            category: 'Venue',
-            price: r'$1500.00',
+            category: 'Evento',
+            price: r'$30000.00',
           ),
           const Divider(height: 1),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                const TotalRow(label: 'Subtotal', amount: r'$2150.00'),
+                const TotalRow(label: 'Subtotal', amount: r'$43000.00'),
                 const SizedBox(height: 8),
-                const TotalRow(label: 'Taxes & Fees', amount: r'$150.00'),
+                const TotalRow(
+                  label: 'Impuestos y honorarios',
+                  amount: r'$3000.00',
+                ),
                 const Divider(height: 24),
                 DefaultTextStyle(
                   style: Theme.of(context).textTheme.titleMedium!,
-                  child: const TotalRow(label: 'Total', amount: r'$2300.00'),
+                  child: const TotalRow(label: 'Total', amount: r'$46000.00'),
                 ),
               ],
             ),
@@ -175,7 +178,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
     return Column(
       children: [
         PaymentMethodTile(
-          title: 'Credit Card',
+          title: 'Tarjeta de credito',
           icon: Icons.credit_card,
           value: 0,
           groupValue: _selectedMethod,
@@ -191,7 +194,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
         ),
         const SizedBox(height: 12),
         PaymentMethodTile(
-          title: 'Bank Transfer',
+          title: 'Transferencia Bancaria',
           icon: Icons.account_balance,
           value: 2,
           groupValue: _selectedMethod,
@@ -230,12 +233,12 @@ class PaymentMethodTile extends StatelessWidget {
       secondary: icon != null
           ? Icon(icon, color: Theme.of(context).colorScheme.primary)
           : imageAsset != null
-              ? Image.network(
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuCaxRy4dJFCtSAp0HLTNH-o089Xw8AWy902MnT316jLkGQV3eeLXP6N5YnarQ0kf4ml3OEb-nw2Fck5pQkpmCaVwhJNiTF4eM-genT_N3IuXX8Ze7oISeKtGl9Ol9rLpPpocdlEobIR_Enkgzkdw-zN5jFKgkjj9e7ZxgBAmSRDSRkp5DUgoGz5e8cYeL4XOP7loi8MNFFqDfm1mX-flG4J5I7PUDE49HwZvliyhGBRtgG-4-LxxXu1GY7q0HHnxgZ332jqeZaaBe0',
-                  height: 24,
-                  width: 24,
-                )
-              : null,
+          ? Image.network(
+              'https://lh3.googleusercontent.com/aida-public/AB6AXuCaxRy4dJFCtSAp0HLTNH-o089Xw8AWy902MnT316jLkGQV3eeLXP6N5YnarQ0kf4ml3OEb-nw2Fck5pQkpmCaVwhJNiTF4eM-genT_N3IuXX8Ze7oISeKtGl9Ol9rLpPpocdlEobIR_Enkgzkdw-zN5jFKgkjj9e7ZxgBAmSRDSRkp5DUgoGz5e8cYeL4XOP7loi8MNFFqDfm1mX-flG4J5I7PUDE49HwZvliyhGBRtgG-4-LxxXu1GY7q0HHnxgZ332jqeZaaBe0',
+              height: 24,
+              width: 24,
+            )
+          : null,
     );
   }
 }
@@ -248,14 +251,14 @@ class CardDetailsForm extends StatelessWidget {
     return Column(
       children: [
         TextFormField(
-          decoration: const InputDecoration(labelText: 'Card Number'),
+          decoration: const InputDecoration(labelText: 'Numero de tarjeta'),
         ),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
               child: TextFormField(
-                decoration: const InputDecoration(labelText: 'MM / YY'),
+                decoration: const InputDecoration(labelText: 'MM / AA'),
               ),
             ),
             const SizedBox(width: 12),
@@ -268,7 +271,9 @@ class CardDetailsForm extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         TextFormField(
-          decoration: const InputDecoration(labelText: 'Cardholder Name'),
+          decoration: const InputDecoration(
+            labelText: 'Nombre del propietario',
+          ),
         ),
       ],
     );
@@ -288,7 +293,7 @@ class PaymentFooter extends StatelessWidget {
             // TODO(user): Implement payment logic
           },
           icon: const Icon(Icons.lock),
-          label: const Text(r'Pay Securely $2300.00'),
+          label: const Text(r'Pagar $46000.00'),
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 50),
           ),

@@ -4,9 +4,9 @@ class RequestModel {
     required this.title,
     required this.description,
     required this.userId,
-    this.providerId,
     required this.status,
     required this.createdAt,
+    this.providerId,
     this.budget,
   });
 

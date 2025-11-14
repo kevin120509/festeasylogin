@@ -1,10 +1,7 @@
-import 'package:festeasy_app/features/dashboard/home_screen.dart';
-import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
-// Added for uni_links
-import 'package:festeasy_app/features/dashboard/view/provider_dashboard.dart';
-import 'package:festeasy_app/features/dashboard/view/provider_services_page.dart';
 import 'package:festeasy_app/features/payment/view/payment_page.dart';
 import 'package:festeasy_app/features/splash/view/splash_page.dart';
+import 'package:festeasy_app/features/dashboard/view/client_dashboard.dart';
+import 'package:festeasy_app/features/services/view/services_screen.dart';
 import 'package:festeasy_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
@@ -57,11 +54,9 @@ class _AppState extends State<App> {
 
       home: const SplashPage(),
       routes: {
-        '/home': (context) => const HomeScreen(),
-        '/provider_dashboard': (context) => const ProviderDashboard(),
-        '/provider_services': (context) => const ProviderServicesPage(),
         '/client_dashboard': (context) => const ClientDashboard(),
         '/payment': (context) => const PaymentPage(),
+        '/services': (context) => const ServicesScreen(),
       },
     );
   }

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:festeasy_app/core/local_storage.dart' as app_local_storage;
-import 'package:festeasy_app/features/dashboard/home_screen.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_request_review.dart';
 import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
 import 'package:flutter/material.dart';
@@ -220,7 +219,9 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
   }
 
   Widget _buildEventosTab() {
-    return const HomeScreen();
+    return const Center(
+      child: Text('Eventos del Proveedor'),
+    );
   }
 
   Widget _buildPerfilTab() {
