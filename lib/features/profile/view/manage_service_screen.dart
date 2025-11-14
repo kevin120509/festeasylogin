@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -24,7 +26,7 @@ class _ManageServiceScreenState extends State<ManageServiceScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchCategories();
+    unawaited(_fetchCategories());
     if (widget.initialService != null) {
       _nombreController.text = widget.initialService!['nombre'] as String? ?? '';
       _descripcionController.text =
@@ -33,7 +35,7 @@ class _ManageServiceScreenState extends State<ManageServiceScreen> {
           (widget.initialService!['precio_base'] as num?)?.toString() ?? '';
       _precioUnidadController.text =
           widget.initialService!['precio_unidad'] as String? ?? '';
-      _fetchSelectedCategories(widget.initialService!['servicio_id'] as int);
+      unawaited(_fetchSelectedCategories(widget.initialService!['servicio_id'] as int));
     }
   }
 
@@ -45,7 +47,7 @@ class _ManageServiceScreenState extends State<ManageServiceScreen> {
           .eq('servicio_id', serviceId);
       setState(() {
         _selectedCategoryIds = (response as List<dynamic>)
-            .map((e) => e['categoria_id'] as int)
+            .map((e) => (e as Map<String, dynamic>)['categoria_id'] as int)
             .toList();
       });
     } on PostgrestException catch (e) {
@@ -73,7 +75,7 @@ class _ManageServiceScreenState extends State<ManageServiceScreen> {
                       value: isSelected,
                       onChanged: (bool? value) {
                         setState(() {
-                          if (value == true) {
+                          if (value ?? false) {
                             selectedIds.add(category['categoria_id'] as int);
                           } else {
                             selectedIds.remove(category['categoria_id'] as int);

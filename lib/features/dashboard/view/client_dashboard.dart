@@ -1,12 +1,10 @@
 import 'dart:async';
 
 import 'package:festeasy_app/features/auth/services/auth_service.dart';
-import 'package:festeasy_app/features/event/view/crear_evento_screen.dart';
 import 'package:festeasy_app/features/event/view/describe_event_page.dart';
 import 'package:festeasy_app/features/events/view/events_page.dart';
 import 'package:festeasy_app/features/profile/view/profile_page.dart';
 import 'package:festeasy_app/features/settings/view/settings_page.dart';
-import 'package:festeasy_app/features/welcome/view/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -27,7 +25,6 @@ class _ClientDashboardState extends State<ClientDashboard> {
 
   late Future<List<Map<String, dynamic>>> _recommendedProviders;
   late Future<List<Map<String, dynamic>>> _recentQuotations;
-  late Future<List<Map<String, dynamic>>> _userEvents;
 
   @override
   void initState() {
@@ -35,7 +32,6 @@ class _ClientDashboardState extends State<ClientDashboard> {
     unawaited(_loadUserName());
     _recommendedProviders = _fetchRecommendedProviders();
     _recentQuotations = _fetchRecentQuotations();
-    _userEvents = _fetchUserEvents();
   }
 
   @override
@@ -81,24 +77,6 @@ class _ClientDashboardState extends State<ClientDashboard> {
       return List<Map<String, dynamic>>.from(response);
     } on PostgrestException catch (e) {
       debugPrint('Error fetching recent quotations: $e');
-      return [];
-    } on Exception catch (e) {
-      debugPrint('An unexpected error occurred: $e');
-      return [];
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> _fetchUserEvents() async {
-    try {
-      final userId = Supabase.instance.client.auth.currentUser!.id;
-      final response = await Supabase.instance.client
-          .from('eventos')
-          .select()
-          .eq('cliente_id', userId)
-          .order('fecha_evento', ascending: true);
-      return List<Map<String, dynamic>>.from(response);
-    } on PostgrestException catch (e) {
-      debugPrint('Error fetching user events: $e');
       return [];
     } on Exception catch (e) {
       debugPrint('An unexpected error occurred: $e');

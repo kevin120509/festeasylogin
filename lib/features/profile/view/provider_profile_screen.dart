@@ -105,8 +105,8 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
   }
 
   Future<void> _pickAndUploadImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    final picker = ImagePicker();
+    final image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image == null) return;
 
@@ -127,7 +127,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
           );
 
       // Get public URL
-      final String publicUrl = Supabase.instance.client.storage
+      final publicUrl = Supabase.instance.client.storage
           .from('fotos-perfil')
           .getPublicUrl(path);
 
@@ -176,7 +176,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
   }
   @override
   Widget build(BuildContext context) {
-    final String currentUserId = Supabase.instance.client.auth.currentUser!.id;
+    final currentUserId = Supabase.instance.client.auth.currentUser!.id;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Configurar Perfil'),

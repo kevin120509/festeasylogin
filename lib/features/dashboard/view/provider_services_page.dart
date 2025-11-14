@@ -1,5 +1,3 @@
-import 'dart:async';
-
 // ignore_for_file: deprecated_member_use, lines_longer_than_80_chars, always_put_required_named_parameters_first, use_super_parameters, document_ignores
 
 import 'package:festeasy_app/features/dashboard/home_screen.dart';
@@ -347,11 +345,11 @@ class _AttendeesRow extends StatelessWidget {
 class _EventHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return const SafeArea(
       bottom: false,
       child: ColoredBox(
         color: Colors.white,
-        child: const SizedBox.shrink(),
+        child: SizedBox.shrink(),
       ),
     );
   }

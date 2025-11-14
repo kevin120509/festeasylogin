@@ -1,6 +1,5 @@
 // `getApplicationDocumentsDirectory()` is an asynchronous method from
 // `path_provider` and does not have a synchronous counterpart.
-// ignore_for_file: avoid_slow_async_io
 
 import 'dart:convert';
 import 'dart:io';

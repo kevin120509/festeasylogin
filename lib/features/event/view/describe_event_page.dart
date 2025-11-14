@@ -118,6 +118,8 @@ class _DescribeEventPageState extends State<DescribeEventPage> {
 
   Future<void> _generateEvent() async {
     if (_formKey.currentState!.validate()) {
+      final navigator = Navigator.of(context);
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
       final profileData = await _authService.getProfileData();
       final description = '''
 Descripción: ${_eventDescriptionController.text}
@@ -135,9 +137,6 @@ ${_services.map((s) => '- ${s['name']} de ${s['start_time']} a ${s['end_time']}'
         'description': description,
         'status': 'pending',
       };
-
-      final navigator = Navigator.of(context);
-      final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       await app_local_storage.LocalStorage.addRequest(eventData);
 

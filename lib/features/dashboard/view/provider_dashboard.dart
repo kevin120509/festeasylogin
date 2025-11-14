@@ -1,6 +1,4 @@
-import 'dart:async';
-
-import 'package:festeasy_app/core/local_storage.dart' as app_local_storage;
+import 'package:festeasy_app/features/dashboard/view/home_screen.dart';
 import 'package:festeasy_app/features/dashboard/view/provider_request_review.dart';
 import 'package:festeasy_app/features/profile/view/provider_profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -130,10 +128,12 @@ class _ProviderDashboardState extends State<ProviderDashboard> {
                   itemBuilder: (context, index) {
                     final req = pendingRequests[index];
                     final isAccepted = req['estado'] == 'cotizado';
-                    final borderColor =
-                        isAccepted ? Colors.green : const Color(0xFFEA4D4D);
-                    final textColor =
-                        isAccepted ? Colors.green : const Color(0xFFEA4D4D);
+                    final borderColor = isAccepted
+                        ? Colors.green
+                        : const Color(0xFFEA4D4D);
+                    final textColor = isAccepted
+                        ? Colors.green
+                        : const Color(0xFFEA4D4D);
 
                     return Card(
                       margin: const EdgeInsets.symmetric(
