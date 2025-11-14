@@ -41,12 +41,11 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
       final userId = Supabase.instance.client.auth.currentUser!.id;
       final response = await Supabase.instance.client
           .from('proveedores')
-          .select('nombre_publico, descripcion, foto_url')
+          .select('full_name, foto_url')
           .eq('user_id', userId)
           .single();
 
-      _nombreController.text = response['nombre_publico'] as String? ?? '';
-      _descController.text = response['descripcion'] as String? ?? '';
+      _nombreController.text = response['full_name'] as String? ?? '';
       _fotoUrl = response['foto_url'] as String?;
     } on PostgrestException catch (e) {
       debugPrint('Error loading profile data: ${e.message}');
@@ -76,8 +75,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
     try {
       final userId = Supabase.instance.client.auth.currentUser!.id;
       await Supabase.instance.client.from('proveedores').update({
-        'nombre': _nombreController.text.trim(),
-        'descripcion': _descController.text.trim(),
+        'full_name': _nombreController.text.trim(),
       }).eq('user_id', userId);
 
       if (mounted) {
@@ -119,10 +117,10 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
     try {
       final userId = Supabase.instance.client.auth.currentUser!.id;
       final imageFile = File(image.path);
-      final path = '$userId/profile.png';
+      final path = '$userId/foto-perfil.png';
 
       // Upload image to Supabase Storage
-      await Supabase.instance.client.storage.from('fotos_perfil').upload(
+      await Supabase.instance.client.storage.from('fotos-perfil').upload(
             path,
             imageFile,
             fileOptions: const FileOptions(upsert: true),
@@ -130,7 +128,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
 
       // Get public URL
       final String publicUrl = Supabase.instance.client.storage
-          .from('fotos_perfil')
+          .from('fotos-perfil')
           .getPublicUrl(path);
 
       // Save URL to database
@@ -176,7 +174,6 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final String currentUserId = Supabase.instance.client.auth.currentUser!.id;
@@ -194,6 +191,10 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Sección 1: Foto de Perfil
+
+                  const SizedBox(height: 24),
+
                   // Sección 1: Foto de Perfil
                   Center(
                     child: Column(
@@ -228,15 +229,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _descController,
-                    decoration: const InputDecoration(
-                      labelText: 'Descripción',
-                      border: OutlineInputBorder(),
-                    ),
-                    maxLines: 5,
-                  ),
+
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
@@ -313,7 +306,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                                       await Supabase.instance.client
                                           .from('servicios')
                                           .delete()
-                                          .eq('servicio_id', service['servicio_id']);
+                                          .eq('servicio_id', service['servicio_id'] as Object);
                                       if (mounted) {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           const SnackBar(

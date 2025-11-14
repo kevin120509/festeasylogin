@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RequestsRepository {
   RequestsRepository({SupabaseClient? client})
-    : supabase = client ?? Supabase.instance.client;
+      : supabase = client ?? Supabase.instance.client;
 
   final SupabaseClient supabase;
 
@@ -12,13 +12,11 @@ class RequestsRepository {
   Future<List<RequestModel>> fetchRequestsForProvider(
     String providerId,
   ) async {
-    final res =
-        await supabase
-                .from('requests')
-                .select()
-                .or('provider_id.eq.$providerId,status.eq.open')
-                .order('created_at', ascending: false)
-            as List<dynamic>;
+    final res = await supabase
+        .from('requests')
+        .select()
+        .or('provider_id.eq.$providerId,status.eq.open')
+        .order('created_at', ascending: false) as List<dynamic>;
 
     return res
         .map((e) => RequestModel.fromJson(e as Map<String, dynamic>))
@@ -27,13 +25,11 @@ class RequestsRepository {
 
   // Trae solicitudes creadas por un usuario (historial)
   Future<List<RequestModel>> fetchRequestsByUser(String userId) async {
-    final res =
-        await supabase
-                .from('requests')
-                .select()
-                .eq('user_id', userId)
-                .order('created_at', ascending: false)
-            as List<dynamic>;
+    final res = await supabase
+        .from('requests')
+        .select()
+        .eq('user_id', userId)
+        .order('created_at', ascending: false) as List<dynamic>;
 
     return res
         .map((e) => RequestModel.fromJson(e as Map<String, dynamic>))
@@ -57,11 +53,8 @@ class RequestsRepository {
       'budget': budget,
     };
 
-    final response = await supabase
-        .from('requests')
-        .insert(payload)
-        .select()
-        .single();
+    final response =
+        await supabase.from('requests').insert(payload).select().single();
     return RequestModel.fromJson(response);
   }
 }

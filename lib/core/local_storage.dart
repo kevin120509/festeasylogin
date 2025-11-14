@@ -26,8 +26,8 @@ class LocalStorage {
   static Future<List<Map<String, dynamic>>> getRequests() async {
     try {
       final file = await _requestsFile();
-      if (!await file.exists()) return [];
-      final content = await file.readAsString();
+      if (!file.existsSync()) return [];
+      final content = file.readAsStringSync();
       final data = jsonDecode(content) as List<dynamic>;
       return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
     } on Exception catch (_) {
@@ -59,8 +59,8 @@ class LocalStorage {
   static Future<List<Map<String, dynamic>>> getReservations() async {
     try {
       final file = await _reservationsFile();
-      if (!await file.exists()) return [];
-      final content = await file.readAsString();
+      if (!file.existsSync()) return [];
+      final content = file.readAsStringSync();
       final data = jsonDecode(content) as List<dynamic>;
       return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
     } on Exception catch (_) {

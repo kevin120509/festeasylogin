@@ -114,8 +114,8 @@ class _ClientDashboardState extends State<ClientDashboard> {
               backgroundColor: Colors.red,
               child: Icon(Icons.shopping_cart, color: Colors.white),
             ),
-            onPressed: () async {
-              await Navigator.pushNamed(context, '/payment');
+            onPressed: () {
+              unawaited(Navigator.pushNamed(context, '/payment'));
             },
           ),
         ],
@@ -157,10 +157,15 @@ class _ClientDashboardState extends State<ClientDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const TextField(
-              decoration: InputDecoration(
-                hintText: 'Buscar servicios para mi evento',
-                prefixIcon: Icon(Icons.search),
+            Text(
+              'Crea tu evento con IA',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _eventTitleController,
+              decoration: const InputDecoration(
+                hintText: 'Título del evento',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                   borderSide: BorderSide.none,
@@ -277,7 +282,7 @@ class _ClientDashboardState extends State<ClientDashboard> {
                       final provider = providers[index];
                       final providerName =
                           (provider['proveedores']
-                                  as Map<String, dynamic>?)?['nombre_publico']
+                                  as Map<String, dynamic>?)?['full_name']
                               as String? ??
                           'Proveedor';
                       final serviceName =

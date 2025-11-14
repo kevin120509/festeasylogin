@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:festeasy_app/core/local_storage.dart' as app_local_storage;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -37,6 +41,60 @@ class _ProviderRequestReviewState extends State<ProviderRequestReview> {
       lastDate: DateTime(now.year + 2),
     );
     if (picked != null) setState(() => _selectedDate = picked);
+  }
+
+  Future<void> _showFakeJson() async {
+    final fakeEventData = {
+      'evento_id': 12345,
+      'cliente_id': 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+      'titulo': 'Fiesta de Cumpleaños Sorpresa',
+      'fecha_evento': '2024-12-25',
+      'hora_inicio': '20:00:00',
+      'hora_fin': '02:00:00',
+      'direccion_texto': 'Calle Falsa 123, Colonia Inventada, Ciudad Ejemplo',
+      'estado_evento': 'confirmado',
+      'servicios_sugeridos': [
+        {
+          'sugerencia_id': 1,
+          'nombre_sugerido': 'DJ para Fiesta',
+          'tipo': 'Musica',
+          'confianza': 0.95,
+        },
+        {
+          'sugerencia_id': 2,
+          'nombre_sugerido': 'Servicio de Catering (Bocadillos)',
+          'tipo': 'Comida',
+          'confianza': 0.88,
+        },
+        {
+          'sugerencia_id': 3,
+          'nombre_sugerido': 'Show de Magia',
+          'tipo': 'Shows',
+          'confianza': 0.75,
+        }
+      ]
+    };
+
+    const encoder = JsonEncoder.withIndent('  ');
+    final prettyJson = encoder.convert(fakeEventData);
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Información Falsa del Evento (JSON)'),
+          content: SingleChildScrollView(
+            child: Text(prettyJson),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _handleAcceptRequest() async {
@@ -191,6 +249,13 @@ class _ProviderRequestReviewState extends State<ProviderRequestReview> {
                 if (_selectedDate != null)
                   Text(DateFormat.yMMMMd().format(_selectedDate!)),
               ],
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: ElevatedButton(
+                onPressed: _showFakeJson,
+                child: const Text('Ver JSON Falso'),
+              ),
             ),
             const SizedBox(height: 24),
             Row(

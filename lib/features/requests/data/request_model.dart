@@ -11,19 +11,19 @@ class RequestModel {
   });
 
   factory RequestModel.fromJson(Map<String, dynamic> json) => RequestModel(
-    id: (json['id'] as String?) ?? '',
-    title: (json['title'] as String?) ?? '',
-    description: (json['description'] as String?) ?? '',
-    userId: (json['user_id'] as String?) ?? '',
-    providerId: json['provider_id'] as String?,
-    status: (json['status'] as String?) ?? 'open',
-    createdAt: DateTime.parse(
-      (json['created_at'] as String?) ?? DateTime.now().toIso8601String(),
-    ),
-    budget: json['budget'] != null
-        ? int.tryParse(json['budget'].toString())
-        : null,
-  );
+        id: (json['id'] as String?) ?? '',
+        title: (json['title'] as String?) ?? '',
+        description: (json['description'] as String?) ?? '',
+        userId: (json['user_id'] as String?) ?? '',
+        providerId: json['provider_id'] as String?,
+        status: (json['status'] as String?) ?? 'open',
+        createdAt: DateTime.parse(
+          (json['created_at'] as String?) ?? DateTime.now().toIso8601String(),
+        ),
+        budget: json['budget'] != null
+            ? int.tryParse(json['budget'].toString())
+            : null,
+      );
 
   final String id;
   final String title;
@@ -35,13 +35,13 @@ class RequestModel {
   final int? budget;
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'description': description,
-    'user_id': userId,
-    'provider_id': providerId,
-    'status': status,
-    'created_at': createdAt.toIso8601String(),
-    'budget': budget,
-  };
+        'id': id,
+        'title': title,
+        'description': description,
+        'user_id': userId,
+        'provider_id': providerId,
+        'status': status,
+        'created_at': createdAt.toIso8601String(),
+        'budget': budget,
+      };
 }
